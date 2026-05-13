@@ -1,0 +1,120 @@
+/* 1. CSS VARIABLES (The Design System) */
+:root {
+  /* Colors */
+  --primary: #0077ff;
+  --primary-hover: #005fcc;
+  --bg-main: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+
+  /* Glassmorphism & Borders */
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --radius-lg: 16px;
+  --radius-md: 8px;
+
+  /* Shadows & Glows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --neon-glow: 0 0 15px rgba(0, 119, 255, 0.3);
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* 2. RESET & BASE STYLES */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* 3. RESPONSIVE LAYOUT HELPERS */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 4. MODERN UTILITIES */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* 5. RESPONSIVENESS (Media Queries) */
+
+/* Tablets and smaller laptops */
+@media (max-width: 1024px) {
+  :root {
+    --radius-lg: 12px;
+  }
+
+  .login-page {
+    flex-direction: column; /* Stack the split screen */
+  }
+
+  .login-left {
+    flex: none;
+    height: 30vh; /* Shorter branding area on mobile */
+    padding: 2rem;
+  }
+
+  .login-left h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile Phones */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .login-right {
+    padding: 1rem;
+  }
+
+  .login-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+  }
+
+  .submit-btn {
+    padding: 0.85rem;
+  }
+
+  /* Hide heavy decorative elements on mobile to save battery/performance */
+  .login-left::before {
+    display: none;
+  }
+}
+
+/* 6. COMMON ELEMENTS */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

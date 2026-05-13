@@ -1,0 +1,155 @@
+.main-footer {
+  margin-top: 5rem;
+  padding: 5rem 0 2rem 0;
+  /* Darker, richer background for a tech feel */
+  background: #0f172a;
+  border-top: 1px solid rgba(0, 119, 255, 0.3);
+  color: #f8fafc;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add a subtle glow at the very top of the footer */
+.main-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  box-shadow: 0 0 20px var(--primary);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* Elikem's Branding Section */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #38bdf8; /* Lighter neon blue for dark bg */
+  letter-spacing: 3px;
+  margin-bottom: 0.75rem;
+}
+
+.dev-name {
+  font-size: 3rem;
+  font-weight: 950;
+  color: #ffffff; /* Pure white for high contrast */
+  line-height: 1;
+  margin-bottom: 0.75rem;
+  letter-spacing: -2px;
+}
+
+.dev-tagline {
+  color: #94a3b8;
+  font-size: 1rem;
+  max-width: 300px;
+}
+
+/* Links Section */
+.footer-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5rem;
+}
+
+.link-group h4 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #f8fafc;
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+}
+
+.footer-link {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #38bdf8;
+  transform: translateX(5px);
+}
+
+.social-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.social-grid a {
+  background: rgba(255, 255, 255, 0.05); /* Semi-transparent dark buttons */
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-grid a:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 119, 255, 0.3);
+}
+
+/* Bottom Bar */
+.footer-bottom {
+  text-align: center;
+  margin-top: 5rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Responsiveness */
+@media (max-width: 900px) {
+  .footer-links {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 3rem;
+  }
+
+  .footer-brand {
+    align-items: center;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    justify-content: center;
+  }
+
+  .social-grid {
+    justify-content: center;
+  }
+}
