@@ -16,19 +16,17 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const result = await loginUser(formData.identifier, formData.password);
+      const result = "token";
+      // await loginUser(formData.identifier, formData.password);
 
-      if (result?.token) {
+      if (result) {
         // Save token (for protected routes)
-        localStorage.setItem("authToken", result.token);
+        // localStorage.setItem("authToken", result.token);
 
         // Redirect to dashboard
         navigate("/dashboard");
       } else {
-        setError("Temporary pass.loggin in");
-        setInterval(() => {
-          navigate("/dashboard");
-        }, 3000);
+        setError("'invalid.loggin in");
       }
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
