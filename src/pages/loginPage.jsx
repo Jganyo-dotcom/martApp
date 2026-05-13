@@ -95,7 +95,6 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
-      <Footer />
     </div>
   );
 }
