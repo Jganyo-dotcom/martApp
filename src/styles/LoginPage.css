@@ -1,175 +1,134 @@
 :root {
-  --primary: #0077ff;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --neon-glow: 0 0 15px rgba(0, 119, 255, 0.4);
+  --brand-blue: #0077ff;
+  --dark-navy: #020617;
+  --neon: #00f2ff;
+  --text-dim: #64748b;
+  --error-red: #ef4444;
+}
+
+/* 1. Reset Body & Page */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .login-page {
-  height: 100vh;
-  display: flex;
-  font-family: "Inter", sans-serif;
-  background: #f8fafc;
-}
-
-/* Left Branding Section */
-.login-left {
-  flex: 1.2;
-  background: linear-gradient(135deg, #0077ff 0%, #003366 100%);
-  color: #fff;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 4rem;
-  position: relative;
-  overflow: hidden;
+  /* Use the dark navy background here so any 'holes' from the clip-path show the brand color, not white */
+  background-color: var(--dark-navy);
+  font-family: "Inter", sans-serif;
 }
 
-/* Animated background element */
-.login-left::before {
-  content: "";
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 70%
+/* 2. Main Wrapper */
+.login-main-content {
+  flex: 1; /* Fills all vertical space above footer */
+  display: flex;
+  width: 100%;
+  background-color: #f8fafc; /* This color covers the 'form' half */
+}
+
+/* 3. Branding Side - The Fix */
+.login-left {
+  flex: 1.4;
+  background: linear-gradient(
+    135deg,
+    var(--brand-blue) 0%,
+    var(--dark-navy) 100%
   );
-  animation: shimmer 10s infinite linear;
-}
-
-@keyframes shimmer {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-.login-left h1 {
-  font-size: 3rem;
-  font-weight: 800;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 5%;
+  color: white;
   z-index: 1;
-  margin-bottom: 1rem;
+  /* Diagonal Cut */
+  clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+  overflow: hidden;
+  /* This prevents a white line appearing at the bottom of the clip-path */
+  margin-bottom: -1px;
 }
 
-.login-left p {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  z-index: 1;
-}
-
-/* Right Form Section */
+/* 4. Form Side - The Fix */
 .login-right {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  background-color: #f8fafc;
+  /* Push this slightly to the left to overlap any gap caused by the diagonal */
+  margin-left: -10%;
+  padding-left: 10%;
 }
 
 .login-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  padding: 3rem;
-  border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 420px;
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+  border: 1px solid #edf2f7;
+  z-index: 5;
 }
 
-.login-header {
-  margin-bottom: 2rem;
+/* 5. The Footer - The Fix */
+footer {
+  flex-shrink: 0;
+  background: var(--dark-navy) !important;
+  padding: 30px 20px;
+  color: white;
+  text-align: center;
+  width: 100%;
+  border: none;
+  margin: 0;
+  display: block;
 }
 
-.login-header h2 {
-  font-size: 1.5rem;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-}
-
+/* Input Styles */
 .input-group {
   margin-bottom: 1.5rem;
 }
-
 .input-group label {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
-  letter-spacing: 0.05em;
+  color: var(--dark-navy);
 }
-
 .input-group input {
   width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 1rem;
-  background: #fff;
-  transition: all 0.3s ease;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
 }
-
-.input-group input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: var(--neon-glow);
-}
-
 .submit-btn {
   width: 100%;
   padding: 1rem;
-  background: var(--primary);
+  background: var(--brand-blue);
   color: white;
   border: none;
   border-radius: 12px;
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition:
-    transform 0.2s,
-    background 0.2s;
-  margin-top: 1rem;
 }
 
-.submit-btn:hover {
-  background: #0066dd;
-  transform: translateY(-2px);
-}
-
-.submit-btn:active {
-  transform: translateY(0);
-}
-
-.error-msg {
-  color: #ff4444;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.submit-btn[disabled] {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.forgot-link {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.85rem;
-}
-
-.forgot-link a {
-  color: #0077ff;
-  text-decoration: none;
-}
-.forgot-link a:hover {
-  text-decoration: underline;
+/* Responsive Fix */
+@media (max-width: 1024px) {
+  .login-main-content {
+    flex-direction: column;
+  }
+  .login-left {
+    clip-path: none;
+    margin-bottom: 0;
+    padding: 5rem 2rem;
+  }
+  .login-right {
+    margin-left: 0;
+    padding: 4rem 2rem;
+    margin-top: -3rem; /* Overlap effect */
+  }
 }

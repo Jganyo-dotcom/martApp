@@ -1,3 +1,161 @@
+/* Quantity Input Box Styling */
+.qty-controls input[type="number"] {
+  width: 60px;
+  padding: 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--dark-navy);
+  text-align: center;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+/* Remove default arrows for a cleaner look (Chrome/Safari/Edge) */
+.qty-controls input::-webkit-outer-spin-button,
+.qty-controls input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.qty-controls input[type="number"]:focus {
+  outline: none;
+  border-color: var(--brand-blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.1);
+}
+
+/* The 'X' (Remove Button) Styling */
+.remove-btn {
+  background: rgba(239, 68, 68, 0.1); /* Subtle red background */
+  color: #ef4444; /* Bright red X */
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 15px;
+}
+
+.remove-btn:hover {
+  background: #ef4444; /* Solid red on hover */
+  color: white;
+  transform: rotate(90deg); /* Cool rotation effect */
+}
+
+.remove-btn:active {
+  transform: scale(0.9);
+}
+
+/* Alignment for the cart item details */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background 0.2s;
+}
+
+.cart-item:hover {
+  background: rgba(0, 119, 255, 0.02);
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.subtotal {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #059669; /* Green for money */
+}
+
+
+
+
+/* Container for the search layout */
+.search-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.search-header h2 {
+  color: var(--dark-navy);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* The Search Bar Styling */
+.search-bar {
+  width: 100%;
+  max-width: 600px;
+  padding: 1.1rem 1.5rem;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--dark-navy);
+  background: #ffffff;
+  
+  /* Modern soft borders */
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  
+  /* Smooth transition for the glow effect */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* State: Hover */
+.search-bar:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* State: Focus (The Pro Look) */
+.search-bar:focus {
+  outline: none;
+  border-color: var(--brand-blue);
+  background: #ffffff;
+  
+  /* Neon blue glow effect */
+  box-shadow: 0 0 0 4px rgba(0, 119, 255, 0.1), 
+              0 10px 15px -3px rgba(0, 119, 255, 0.1);
+  
+  /* Slightly widen if you want a dynamic effect */
+  max-width: 650px; 
+}
+
+/* Placeholder Styling */
+.search-bar::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  transition: opacity 0.2s;
+}
+
+.search-bar:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Responsive Fix */
+@media (max-width: 768px) {
+  .search-bar {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+
 .dashboard-content {
   display: flex;
   gap: 2rem;
