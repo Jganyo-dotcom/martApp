@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import loginUser from "../services/loginApi";
 import "../styles/LoginPage.css";
 import Footer from "../components/Footer";
 
@@ -16,13 +17,13 @@ export default function LoginPage() {
 
     try {
       // Simulate API call - Replace with your actual loginUser service
-      const result = { token: "sample_token" };
+      const result = await loginUser(formData.identifier, formData.password);
 
       if (result.token) {
         localStorage.setItem("authToken", result.token);
         navigate("/dashboard");
       } else {
-        setError("Invalid credentials. Please try again.");
+        setError(result.message);
       }
     } catch (err) {
       setError(err.message || "Connection failed. Check your internet.");
@@ -106,8 +107,6 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
-
-    
     </div>
   );
 }
