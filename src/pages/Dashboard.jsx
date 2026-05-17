@@ -1,34 +1,36 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { saveSaleToBackend } from "../services/productApi";
+import { getAllProducts } from "../services/productApi";
 import "../styles/Dashboard.css";
-
-// 1. Define the Master Inventory outside the component
-const INVENTORY = [
-  { id: 1, name: "Heavy Duty Hammer", price: 25 },
-  { id: 2, name: "Precision Screwdriver Set", price: 15 },
-  { id: 3, name: "Power Drill 20V", price: 120 },
-  { id: 4, name: "Box of Steel Nails (100pc)", price: 10 },
-  { id: 5, name: "Measuring Tape 5m", price: 8 },
-  { id: 6, name: "Safety Goggles", price: 12 },
-  { id: 7, name: "Adjustable Wrench", price: 18 },
-  { id: 8, name: "LED Work Light", price: 35 },
-  { id: 9, name: "Hard Hat - Yellow", price: 22 },
-  { id: 10, name: "Wood Saw", price: 30 },
-];
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]); // ✅ fetched products
   const [cart, setCart] = useState([]);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // 2. Compute results in real-time.
-  // If search is empty, it returns everything.
+  // ✅ Fetch products from DB once
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error("Failed to load products:", err.message);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // ✅ Filter results in real-time
   const filteredResults = useMemo(() => {
-    return INVENTORY.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    return products.filter((item) =>
+      item.productName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
-  }, [searchTerm]);
+  }, [searchTerm, products]);
 
   const addToCart = (item) => {
     const existingItem = cart.find((c) => c.id === item.id);
@@ -51,11 +53,12 @@ export default function DashboardPage() {
     setCart(cart.filter((c) => c.id !== id));
   };
 
-  const total = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+  const total = cart.reduce((sum, c) => sum + c.sellingPricePerUnit * c.qty, 0);
+  const mart = localStorage.getItem("mart");
 
   return (
     <div className="dashboard">
-      <Navbar />
+      <Navbar brand={mart} />
 
       <div className="dashboard-content">
         <div className="search-section">
@@ -75,8 +78,8 @@ export default function DashboardPage() {
               filteredResults.map((item) => (
                 <div key={item.id} className="result-card glass">
                   <div className="item-info">
-                    <h4>{item.name}</h4>
-                    <p className="price-tag">GHC{item.price}</p>
+                    <h4>{item.productName}</h4>
+                    <p className="price-tag">GHC{item.sellingPricePerUnit}</p>
                   </div>
                   <button className="add-btn" onClick={() => addToCart(item)}>
                     Add to Cart
@@ -98,7 +101,7 @@ export default function DashboardPage() {
             {cart.map((item) => (
               <div key={item.id} className="cart-item">
                 <div className="cart-item-details">
-                  <span className="item-name">{item.name}</span>
+                  <span className="item-name">{item.productName}</span>
                   <div className="qty-controls">
                     <input
                       type="number"
@@ -108,7 +111,9 @@ export default function DashboardPage() {
                         updateQty(item.id, parseInt(e.target.value))
                       }
                     />
-                    <span className="subtotal">GHC{item.price * item.qty}</span>
+                    <span className="subtotal">
+                      GHC{item.sellingPricePerUnit * item.qty}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -149,8 +154,10 @@ export default function DashboardPage() {
             <ul className="receipt-items">
               {cart.map((item) => (
                 <li key={item.id}>
-                  {item.name} x {item.qty}
-                  <span className="price">GHC{item.price * item.qty}</span>
+                  {item.productName} x {item.qty}
+                  <span className="price">
+                    GHC{item.sellingPricePerUnit * item.qty}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -162,9 +169,22 @@ export default function DashboardPage() {
             <p className="thanks">THANK YOU FOR CHOOSING ELITECH</p>
 
             <div className="modal-actions">
-              <button className="btn print-btn" onClick={() => window.print()}>
+              {/* Short click → Print */}
+              <button
+                className="btn print-btn"
+                onClick={() => window.print()}
+                onMouseDown={() => {
+                  // open save modal after 1s press
+                  const timer = setTimeout(() => setShowSaveModal(true), 1000);
+                  // cancel if released early
+                  const cancel = () => clearTimeout(timer);
+                  document.addEventListener("mouseup", cancel, { once: true });
+                }}
+              >
                 🖨 Print
               </button>
+
+              {/* Close receipt modal */}
               <button
                 className="btn close-btn"
                 onClick={() => setShowReceipt(false)}
@@ -172,6 +192,38 @@ export default function DashboardPage() {
                 ✖ Close
               </button>
             </div>
+
+            {/* Save Transaction Modal */}
+            {showSaveModal && (
+              <div className="modal-overlay">
+                <div className="save-modal glass">
+                  <h2>Save Transaction</h2>
+                  <p>Do you want to record this sale in the system?</p>
+                  <div className="modal-actions">
+                    <button
+                      className="btn primary-btn"
+                      onClick={async () => {
+                        try {
+                          await saveSaleToBackend(cart); // 🔑 call service
+                          alert("Transaction saved successfully!");
+                          setShowSaveModal(false);
+                        } catch (err) {
+                          alert("Error saving transaction: " + err.message);
+                        }
+                      }}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="btn secondary-btn"
+                      onClick={() => setShowSaveModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

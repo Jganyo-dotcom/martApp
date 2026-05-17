@@ -6,9 +6,9 @@ import Footer from "../components/Footer";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,6 +21,7 @@ export default function LoginPage() {
 
       if (result.token) {
         localStorage.setItem("authToken", result.token);
+        localStorage.setItem("mart", result.user.mart);
         navigate("/dashboard");
       } else {
         setError(result.message);
@@ -38,9 +39,9 @@ export default function LoginPage() {
         {/* Left Section: Diagonal Branding */}
         <div className="login-left">
           <div className="branding-content">
-            <span className="badge">MANAGEMENT SYSTEM v2.0</span>
+            <span className="badge">MANAGEMENT SYSTEM v1.0</span>
             <h1>
-              Elitech <span className="accent">Mart</span>
+              Elitech <span className="accent">Mart Manager</span>
             </h1>
             <p>
               Professional hardware inventory & smart analytics for modern

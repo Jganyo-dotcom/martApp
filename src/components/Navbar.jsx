@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Navbar.css";
 
-export default function Navbar() {
+export default function Navbar({ brand = "Elitech Mart" }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <header className="navbar">
-      <div className="navbar-brand">Elitech Mart</div>
+      <div className="navbar-brand">{brand}</div>
 
       {/* Desktop Nav */}
       <nav className="nav-links">
