@@ -1,5 +1,5 @@
 //const BaseApi = "http://127.0.0.1:4444/api/product";
- const BaseApi = "https://martbackend-alnb.onrender.com/api";
+ const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
 
 // ✅ Helper to get token (from localStorage or context)
 const getToken = () => localStorage.getItem("authToken");
