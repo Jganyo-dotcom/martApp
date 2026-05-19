@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Navbar.css";
 
-export default function Navbar({ brand = "Elitech Mart" }) {
+export default function Navbar({ brand = "Elitech Mart", user = "unknown" }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <header className="navbar">
-      <div className="navbar-brand">{brand}</div>
+      {/* Grouped brand and user together inside a left-side container */}
+      <div className="navbar-brand-container">
+        <div className="navbar-brand">🏪 {brand}</div>
+        <div className="navbar-user">👤 User: {user}</div>
+      </div>
 
       {/* Desktop Nav */}
       <nav className="nav-links">
@@ -30,6 +34,8 @@ export default function Navbar({ brand = "Elitech Mart" }) {
       {/* Mobile Sidebar */}
       {isOpen && (
         <div className="sidebar">
+          {/* Subtle user indicator inside mobile menu too */}
+          <div className="sidebar-user-heading">👤 {user}</div>
           <Link to="/dashboard" onClick={() => setIsOpen(false)}>
             Dashboard
           </Link>

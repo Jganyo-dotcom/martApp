@@ -651,3 +651,62 @@
     transform: scale(1) translateY(0);
   }
 }
+
+/* ==========================================================================
+   CUSTOMER NAME INPUT CONTAINER & STYLING
+   ========================================================================== */
+
+.customer-info-input {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.customer-info-input label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.customer-info-input input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.customer-info-input input:focus {
+  border-color: #0077ff;
+  box-shadow: 0 0 8px rgba(0, 119, 255, 0.3);
+  outline: none;
+ 
+}
+
+.customer-info-input input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   RECEIPT MODAL EXTENSION STYLE
+   ========================================================================== */
+
+.receipt-customer {
+  margin: 12px 0 6px 0 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.3px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #22c55e; /* Elegant Green Accent bar */
+  font-family: monospace;
+}
+
+.receipt-customer strong {
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-weight: 500;
+  margin-right: 4px;
+}

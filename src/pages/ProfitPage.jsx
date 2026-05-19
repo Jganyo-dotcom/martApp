@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/Profit.css";
-// Added deleteSalesRecord placeholder import from your API layer
 import {
-  fetchProfitSummary,
   fetchSales,
-  deleteSalesRecord,
   fetchTotalProfit,
+  deleteSaleItem,
 } from "../services/productApi";
 
 export default function ProfitPage() {
@@ -51,8 +49,8 @@ export default function ProfitPage() {
     loadData();
   }, []);
 
-  // 2. Action Handler: Delete sales record by ID
-  const handleDelete = async (saleId) => {
+  // 2. Action Handler: Clean asynchronous delete mutation
+  const handleDelete = async (saleId, inputer, quantity, productName) => {
     if (!saleId) return alert("Error: Missing sale ID.");
 
     const confirmDelete = window.confirm(
@@ -61,25 +59,47 @@ export default function ProfitPage() {
     if (!confirmDelete) return;
 
     try {
-      // Assuming your productApi file exports a deleteSalesRecord(id) function
-      if (typeof deleteSalesRecord === "function") {
-        await deleteSalesRecord(saleId);
-      } else {
-        console.warn(
-          "deleteSalesRecord function is not yet defined in services.",
-        );
-      }
+      const response = await deleteSaleItem(
+        saleId,
+        inputer,
+        quantity,
+        productName,
+      );
+      alert(response?.message || "Item deleted successfully.");
 
-      alert("Sale deleted successfully!");
-      // Refresh current data grids dynamically from backend
-      loadData();
+      // Update salesData state in place to stop manual window reloads
+      setSalesData((prevSales) => {
+        return prevSales
+          .map((sale) => {
+            if (sale._id !== saleId) return sale;
+
+            const updatedItems = sale.items.filter(
+              (item) =>
+                !(
+                  item.productName === productName && item.quantity === quantity
+                ),
+            );
+
+            return { ...sale, items: updatedItems };
+          })
+          .filter(
+            (sale) =>
+              sale && Array.isArray(sale.items) && sale.items.length > 0,
+          );
+      });
+
+      // Recalculate numbers locally instantly
+      setSummary((prevSummary) => ({
+        ...prevSummary,
+        itemsSold: Math.max(0, (prevSummary?.itemsSold || 0) - quantity),
+      }));
     } catch (err) {
       console.error("Failed to delete record:", err.message);
       alert("Failed to delete sale record: " + err.message);
     }
   };
 
-  // 3. Flatten the items structure cleanly to implement correct 10-per-page pagination
+  // 3. Flatten structural database arrays securely with structural fallbacks
   const flattenedRows = [];
   salesData.forEach((sale) => {
     if (sale && Array.isArray(sale.items)) {
@@ -90,6 +110,7 @@ export default function ProfitPage() {
           inputer: sale?.user?.name || "System",
           productName: item?.productName || "Unknown Item",
           quantity: item?.quantity ?? 0,
+          customerName: sale?.customerName?.trim() || "Walk-in Customer",
           costPrice: item?.costPrice ?? 0,
           unitPrice: item?.unitPrice ?? 0,
           profit:
@@ -102,16 +123,32 @@ export default function ProfitPage() {
     }
   });
 
-  // 4. Calculate pagination slice values
+  // 4. Guard and handle pagination parameters carefully
   const totalItems = flattenedRows.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
 
-  // Adjusted automatically if pages change under matching filters
+  // Auto-correct page bound index if rows get cleared completely
   const normalizedCurrentPage =
     currentPage > totalPages ? totalPages : currentPage;
+
+  // Safe step back adjustment to avoid empty render spaces
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   const indexOfLastItem = normalizedCurrentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentRows = flattenedRows.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Common UI styling configuration object to enforce line clipping limitations
+  const textTruncateStyle = {
+    maxWidth: "160px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  };
 
   return (
     <div className="profit-page">
@@ -129,34 +166,57 @@ export default function ProfitPage() {
           </div>
         ) : (
           <>
-            {/* 3 TOP CARDS */}
+            {/* 3 TOP STATS CARDS */}
             <div className="stats-row">
               <div className="stat-card glass glow-blue">
                 <span>Total Revenue</span>
-                <h2>GHC{(summary?.totalProfit ?? 0).toFixed(2)}</h2>
+                <h2 style={{ wordBreak: "break-all" }}>
+                  GHC{" "}
+                  {(
+                    (summary?.totalProfit ?? 0) + (summary?.totalexpense ?? 0)
+                  ).toFixed(2)}
+                </h2>
               </div>
               <div className="stat-card glass glow-green">
                 <span>Net Profit</span>
-                <h2 className="text-green">
-                  GHC{(summary?.totalProfit ?? 0).toFixed(2)}
+                <h2 className="text-green" style={{ wordBreak: "break-all" }}>
+                  GHC{" "}
+                  {(
+                    (summary?.totalProfit ?? 0) - (summary?.totalExpense ?? 0)
+                  ).toFixed(2)}
                 </h2>
               </div>
               <div className="stat-card glass">
                 <span>Items Sold</span>
-                <h2>{summary?.itemsSold ?? 0} Units</h2>
+                <h2 style={{ wordBreak: "break-all" }}>
+                  {summary?.itemsSold ?? 0} Units
+                </h2>
               </div>
             </div>
 
-            {/* SALES BREAKDOWN TABLE */}
+            {/* DEFENSIVE SALES BREAKDOWN TABLE */}
             <section className="sales-section glass">
               <h3>Recent Sales Breakdown</h3>
-              <div className="table-wrapper">
-                <table className="profit-table">
+              <div className="table-wrapper" style={{ overflowX: "auto" }}>
+                <table
+                  className="profit-table"
+                  style={{ width: "100%", tableLayout: "fixed" }}
+                >
+                  <colgroup>
+                    <col style={{ width: "22%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "18%" }} />
+                    <col style={{ width: "13%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "13%" }} />
+                    <col style={{ width: "13%" }} />
+                    <col style={{ width: "8%" }} />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>Product Name</th>
-                      <th>Qty Sold</th>
-                      <th>Unit Cost</th>
+                      <th>Qty</th>
+                      <th>Customer</th>
                       <th>Unit Sell</th>
                       <th>Total Profit</th>
                       <th>Entered By</th>
@@ -177,16 +237,28 @@ export default function ProfitPage() {
                     ) : (
                       currentRows.map((row) => (
                         <tr key={row.uniqueKey}>
-                          <td className="font-bold">{row.productName}</td>
+                          <td
+                            className="font-bold"
+                            style={textTruncateStyle}
+                            title={row.productName}
+                          >
+                            {row.productName}
+                          </td>
                           <td>{row.quantity}</td>
-                          <td className="text-muted">
-                            GHC{row.costPrice.toFixed(2)}
+                          <td
+                            className="text-muted"
+                            style={textTruncateStyle}
+                            title={row.customerName}
+                          >
+                            {row.customerName}
                           </td>
-                          <td>GHC{row.unitPrice.toFixed(2)}</td>
+                          <td>GHC{(row.unitPrice || 0).toFixed(2)}</td>
                           <td className="text-green font-bold">
-                            +GHC{row.profit.toFixed(2)}
+                            +GHC{(row.profit || 0).toFixed(2)}
                           </td>
-                          <td className="text-muted">{row.inputer}</td>
+                          <td style={textTruncateStyle} title={row.inputer}>
+                            {row.inputer}
+                          </td>
                           <td className="text-muted">
                             {row.createdAt
                               ? new Date(row.createdAt).toLocaleDateString()
@@ -195,13 +267,21 @@ export default function ProfitPage() {
                           <td style={{ textAlign: "center" }}>
                             <button
                               className="delete-row-btn"
-                              onClick={() => handleDelete(row.parentSaleId)}
+                              onClick={() =>
+                                handleDelete(
+                                  row.parentSaleId,
+                                  row.inputer,
+                                  row.quantity,
+                                  row.productName,
+                                )
+                              }
                               title="Delete Record"
                               style={{
                                 background: "none",
                                 border: "none",
                                 cursor: "pointer",
                                 fontSize: "1.1rem",
+                                padding: "4px",
                               }}
                             >
                               🗑️
@@ -214,7 +294,7 @@ export default function ProfitPage() {
                 </table>
               </div>
 
-              {/* 5. PAGINATION INTERFACE CONTROLS */}
+              {/* PAGINATION INTERFACE CONTROLS */}
               {totalPages > 1 && (
                 <div
                   className="pagination-bar"

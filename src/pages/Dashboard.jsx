@@ -9,6 +9,7 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]); // ✅ fetched products
   const [cart, setCart] = useState([]);
+  const [customerName, setCustomerName] = useState(""); // 🆕 Customer Name Tracking State
   const [showReceipt, setShowReceipt] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
@@ -51,6 +52,14 @@ export default function DashboardPage() {
 
   const removeItem = (id) => {
     setCart(cart.filter((c) => c.id !== id));
+  };
+
+  // 🆕 Reset function to clear fields upon successful purchase
+  const clearTransaction = () => {
+    setCart([]);
+    setCustomerName("");
+    setShowReceipt(false);
+    setShowSaveModal(false);
   };
 
   const total = cart.reduce((sum, c) => sum + c.sellingPricePerUnit * c.qty, 0);
@@ -96,6 +105,18 @@ export default function DashboardPage() {
 
         <div className="cart-section glass">
           <h3>Shopping Cart</h3>
+
+          {/* 🆕 CUSTOMER INFO SECTION */}
+          <div className="customer-info-input">
+            <label>Customer Name</label>
+            <input
+              type="text"
+              placeholder="Enter buyer's name (Optional)..."
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+            />
+          </div>
+
           <div className="cart-list">
             {cart.length === 0 && <p className="empty-msg">No items in cart</p>}
             {cart.map((item) => (
@@ -149,6 +170,19 @@ export default function DashboardPage() {
           <div className="receipt-modal">
             <h2>*** Elitech Mart ***</h2>
             <p className="receipt-date">Date: {new Date().toLocaleString()}</p>
+            {/* 🆕 Display Customer Name on Receipt if provided */}
+            {customerName && (
+              <p
+                className="receipt-customer"
+                style={{
+                  textAlign: "left",
+                  fontSize: "0.9rem",
+                  textTransform: "uppercase",
+                }}
+              >
+                <strong>Customer:</strong> {customerName}
+              </p>
+            )}
             <div className="divider">------------------------------------</div>
 
             <ul className="receipt-items">
@@ -169,14 +203,11 @@ export default function DashboardPage() {
             <p className="thanks">THANK YOU FOR CHOOSING ELITECH</p>
 
             <div className="modal-actions">
-              {/* Short click → Print */}
               <button
                 className="btn print-btn"
                 onClick={() => window.print()}
                 onMouseDown={() => {
-                  // open save modal after 1s press
                   const timer = setTimeout(() => setShowSaveModal(true), 1000);
-                  // cancel if released early
                   const cancel = () => clearTimeout(timer);
                   document.addEventListener("mouseup", cancel, { once: true });
                 }}
@@ -184,7 +215,6 @@ export default function DashboardPage() {
                 🖨 Print
               </button>
 
-              {/* Close receipt modal */}
               <button
                 className="btn close-btn"
                 onClick={() => setShowReceipt(false)}
@@ -204,9 +234,10 @@ export default function DashboardPage() {
                       className="btn primary-btn"
                       onClick={async () => {
                         try {
-                          await saveSaleToBackend(cart); // 🔑 call service
+                          // 🔑 Sending cart array alongside customer identity context
+                          await saveSaleToBackend(cart, customerName);
                           alert("Transaction saved successfully!");
-                          setShowSaveModal(false);
+                          clearTransaction(); // Clear everything
                         } catch (err) {
                           alert("Error saving transaction: " + err.message);
                         }

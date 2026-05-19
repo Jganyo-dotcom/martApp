@@ -55,33 +55,121 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-/* 5. RESPONSIVENESS (Media Queries) */
+/* 5. SPLIT LOGIN SCREEN CORE LAYOUT (Desktop Default) */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  width: 100vw;
+}
 
-/* Tablets and smaller laptops */
+/* Left Panel - Branding/Hero Showcase */
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #005fcc 0%, #0077ff 100%);
+  color: #ffffff;
+  padding: 3rem;
+  position: relative;
+  text-align: center;
+}
+
+.login-left h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 1rem;
+}
+
+/* Right Panel - Interactive Form Core Container */
+.login-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  background-color: var(--bg-main);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 6. MOBILE RESPONSIVENESS (Media Queries) */
+
+/* Tablets and small laptops (e.g., iPad viewports) */
 @media (max-width: 1024px) {
   :root {
     --radius-lg: 12px;
   }
 
   .login-page {
-    flex-direction: column; /* Stack the split screen */
+    flex-direction: column; /* Stacks layout sections vertically */
   }
 
   .login-left {
     flex: none;
-    height: 30vh; /* Shorter branding area on mobile */
-    padding: 2rem;
+    height: 25vh; /* Takes up less visual height on mobile */
+    padding: 1.5rem;
   }
 
   .login-left h1 {
     font-size: 2rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .login-left p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  .login-right {
+    flex: 1;
+    padding: 2rem 1.5rem;
+    align-items: flex-start; /* Forces the card up slightly for comfortable touch typing */
   }
 }
 
-/* Mobile Phones */
+/* Mobile Smart Phones */
 @media (max-width: 640px) {
   body {
     font-size: 14px;
+  }
+
+  .login-left {
+    height: 20vh; /* Aggressive space budgeting for virtual keyboards */
+  }
+
+  .login-left h1 {
+    font-size: 1.75rem;
+  }
+
+  .login-left p {
+    display: none; /* Keeps screen perfectly uncluttered on small displays */
   }
 
   .login-right {
@@ -91,19 +179,22 @@ body {
   .login-card {
     padding: 1.5rem;
     border-radius: var(--radius-md);
+    box-shadow: none; /* Flattening card prevents ugly layout borders on mobile wraps */
+    background: transparent; /* Seamless blend inside flat mobile window displays */
+    border: none;
   }
 
   .submit-btn {
     padding: 0.85rem;
   }
 
-  /* Hide heavy decorative elements on mobile to save battery/performance */
+  /* Structural performance block: Disables custom visual calculations to conserve graphics hardware/battery */
   .login-left::before {
-    display: none;
+    display: none !important;
   }
 }
 
-/* 6. COMMON ELEMENTS */
+/* 7. COMMON GLOBAL ELEMENTS */
 a {
   color: var(--primary);
   text-decoration: none;

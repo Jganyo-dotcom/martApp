@@ -7,9 +7,32 @@
   padding: 1rem 2rem;
 }
 
+/* Stacks the brand name and tiny user info neatly on top of each other */
+.navbar-brand-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
+}
+
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Make the login user information display very small */
+.navbar-user {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: rgba(
+    255,
+    255,
+    255,
+    0.85
+  ); /* Slightly transparent white so it sits cleanly in the background hierarchy */
+  letter-spacing: 0.3px;
 }
 
 .nav-links {
@@ -42,6 +65,15 @@
   flex-direction: column;
   padding: 1rem;
   width: 200px;
+  z-index: 10;
+}
+
+.sidebar-user-heading {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .sidebar a {

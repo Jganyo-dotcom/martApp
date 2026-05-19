@@ -1,5 +1,5 @@
 //const BaseApi = "http://127.0.0.1:4444/api/product";
- const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
+const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
 
 // ✅ Helper to get token (from localStorage or context)
 const getToken = () => localStorage.getItem("authToken");
@@ -43,7 +43,7 @@ export const addProduct = async (productData) => {
   }
 };
 
-export const saveSaleToBackend = async (cart) => {
+export const saveSaleToBackend = async (cart, customerName) => {
   const response = await fetch(`${BaseApi}/add-sale`, {
     method: "POST",
     headers: {
@@ -58,6 +58,7 @@ export const saveSaleToBackend = async (cart) => {
         unitPrice: item.price,
         costPrice: item.costPrice,
       })),
+      customerName: customerName || "Walking Customer", // Default label fallback
     }),
   });
 
@@ -84,30 +85,7 @@ export const handleDelete = async (productId) => {
   }
 };
 
-export const deleteSalesRecord = async (saleId) => {
-  try {
-    if (!saleId) {
-      throw new Error("Sale ID is required to perform a deletion.");
-    }
-
-    // Sends a DELETE request to your backend endpoint (e.g., /api/sales/6a0a101655ed4856370ab0cb)
-    const response = await axios.delete(`${API_BASE_URL}/sales/${saleId}`);
-
-    // Return the data payload (like a success message) back to your component
-    return response.data;
-  } catch (error) {
-    // Extracts the cleanest error message possible out of Axios responses
-    const errorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "Failed to delete sales record";
-    console.error("API Error in deleteSalesRecord:", errorMessage);
-    throw new Error(errorMessage);
-  }
-};
-
 // src/services/profitApi.js
-
 
 // Fetch total profit for the current mart
 export const fetchTotalProfit = async () => {
@@ -125,6 +103,36 @@ export const fetchTotalProfit = async () => {
     return data; // { mart: "...", totalProfit: 1234 }
   } catch (err) {
     console.error("Error fetching total profit:", err.message);
+    throw err;
+  }
+};
+
+// src/services/salesApi.js
+// src/services/salesApi.js
+export const deleteSaleItem = async (
+  saleId,
+  inputer,
+  quantity,
+  productName,
+) => {
+  try {
+    const response = await fetch(
+      `${BaseApi}/sales/${saleId}/item/${encodeURIComponent(productName)}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({ inputer, quantity }), // pass extra params safely
+      },
+    );
+
+    if (!response.ok) throw new Error("Failed to delete sale item");
+
+    return await response.json();
+  } catch (err) {
+    console.error("Error deleting sale item:", err.message);
     throw err;
   }
 };
@@ -156,6 +164,7 @@ export const fetchSales = async () => {
     console.log("Raw API Response in service:", data);
 
     // ✅ FIX: Since data is already the array [0: {...}, 1: {...}], return it directly!
+    console.log(data);
     return data;
   } catch (err) {
     console.error("Error fetching sales:", err.message);
