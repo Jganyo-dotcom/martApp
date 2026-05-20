@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      <Navbar brand={mart} />
+      <Navbar brand={mart} user={mart} />
 
       <div className="dashboard-content">
         <div className="search-section">
