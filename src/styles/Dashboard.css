@@ -1,87 +1,29 @@
-/* Quantity Input Box Styling */
-.qty-controls input[type="number"] {
-  width: 60px;
-  padding: 8px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-family: "Inter", sans-serif;
-  font-weight: 600;
-  color: var(--dark-navy);
-  text-align: center;
-  transition: all 0.2s ease;
-  background: #f8fafc;
+/* ==========================================================================
+   GLOBAL VARIABLES & LAYOUT BASICS
+   ========================================================================== */
+:root {
+  --brand-blue: #0077ff;
+  --dark-navy: #1e293b;
+  --text-light: #f8fafc;
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* Remove default arrows for a cleaner look (Chrome/Safari/Edge) */
-.qty-controls input::-webkit-outer-spin-button,
-.qty-controls input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.qty-controls input[type="number"]:focus {
-  outline: none;
-  border-color: var(--brand-blue);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.1);
-}
-
-/* The 'X' (Remove Button) Styling */
-.remove-btn {
-  background: rgba(239, 68, 68, 0.1); /* Subtle red background */
-  color: #ef4444; /* Bright red X */
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.dashboard-content {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-left: 15px;
+  gap: 2rem;
+  padding: 2rem;
 }
 
-.remove-btn:hover {
-  background: #ef4444; /* Solid red on hover */
-  color: white;
-  transform: rotate(90deg); /* Cool rotation effect */
+.search-section,
+.cart-section {
+  flex: 1;
+  min-width: 0; /* Prevents flex children from breaking parent layout container bounds */
 }
 
-.remove-btn:active {
-  transform: scale(0.9);
-}
-
-/* Alignment for the cart item details */
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: background 0.2s;
-}
-
-.cart-item:hover {
-  background: rgba(0, 119, 255, 0.02);
-}
-
-.qty-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 5px;
-}
-
-.subtotal {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #059669; /* Green for money */
-}
-
-/* Container for the search layout */
+/* ==========================================================================
+   SEARCH HEADER & BAR STYLING
+   ========================================================================== */
 .search-header {
   margin-bottom: 2.5rem;
   display: flex;
@@ -95,7 +37,6 @@
   letter-spacing: -0.5px;
 }
 
-/* The Search Bar Styling */
 .search-bar {
   width: 100%;
   max-width: 600px;
@@ -104,38 +45,27 @@
   font-family: "Inter", sans-serif;
   color: var(--dark-navy);
   background: #ffffff;
-
-  /* Modern soft borders */
   border: 2px solid #e2e8f0;
   border-radius: 16px;
-
-  /* Smooth transition for the glow effect */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
 }
 
-/* State: Hover */
 .search-bar:hover {
   border-color: #cbd5e1;
   transform: translateY(-1px);
 }
 
-/* State: Focus (The Pro Look) */
 .search-bar:focus {
   outline: none;
   border-color: var(--brand-blue);
   background: #ffffff;
-
-  /* Neon blue glow effect */
   box-shadow:
     0 0 0 4px rgba(0, 119, 255, 0.1),
     0 10px 15px -3px rgba(0, 119, 255, 0.1);
-
-  /* Slightly widen if you want a dynamic effect */
   max-width: 650px;
 }
 
-/* Placeholder Styling */
 .search-bar::placeholder {
   color: #94a3b8;
   font-weight: 400;
@@ -146,237 +76,11 @@
   opacity: 0.5;
 }
 
-/* Responsive Fix */
-@media (max-width: 768px) {
-  .search-bar {
-    padding: 0.9rem 1.2rem;
-    font-size: 0.95rem;
-  }
-}
-
-.dashboard-content {
-  display: flex;
-  gap: 2rem;
-  padding: 2rem;
-}
-
-.search-section,
-.cart-section {
-  flex: 1;
-}
-
+/* ==========================================================================
+   RESULTS CARD GRID MANAGEMENT
+   ========================================================================== */
 .results {
   margin-top: 1rem;
-}
-
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.cart-total {
-  font-weight: 700;
-  margin-top: 1rem;
-}
-
-.purchase-btn {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: #0077ff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-.modal {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 10px;
-  width: 350px;
-  max-width: 90%;
-  font-family: monospace; /* receipt style */
-}
-
-.modal h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.modal ul {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-}
-
-.modal li {
-  margin: 0.25rem 0;
-}
-
-.modal .total {
-  font-weight: bold;
-  margin-top: 1rem;
-}
-
-.modal .thanks {
-  text-align: center;
-  margin-top: 1rem;
-  font-weight: bold;
-  color: #0077ff;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .modal,
-  .modal * {
-    visibility: visible;
-  }
-  .modal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    box-shadow: none;
-    border-radius: 0;
-  }
-}
-
-.receipt-modal {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  width: 320px;
-  max-width: 90%;
-  font-family: monospace;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
-
-.receipt-modal h2 {
-  margin-bottom: 0.5rem;
-  font-size: 1.2rem;
-}
-
-.receipt-date {
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-}
-
-.divider {
-  font-size: 0.9rem;
-  color: #444;
-  margin: 0.5rem 0;
-}
-
-.receipt-items {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0;
-  text-align: left;
-}
-
-.receipt-items li {
-  display: flex;
-  justify-content: space-between;
-  margin: 0.25rem 0;
-}
-
-.price {
-  font-weight: bold;
-}
-
-.receipt-total {
-  font-weight: bold;
-  font-size: 1rem;
-  margin: 0.5rem 0;
-}
-
-.thanks {
-  margin-top: 0.5rem;
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #0077ff;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-.btn {
-  flex: 1;
-  margin: 0 0.25rem;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.print-btn {
-  background: #0077ff;
-  color: #fff;
-}
-
-.print-btn:hover {
-  background: #005fcc;
-}
-
-.close-btn {
-  background: #f3f4f6;
-  color: #333;
-}
-
-.close-btn:hover {
-  background: #e5e7eb;
-}
-
-/* Print styling */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .receipt-modal,
-  .receipt-modal * {
-    visibility: visible;
-  }
-  .receipt-modal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 280px; /* narrow like thermal paper */
-    border-radius: 0;
-    box-shadow: none;
-  }
 }
 
 .results-grid {
@@ -413,249 +117,108 @@
   font-weight: 600;
 }
 
-/* Overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 15, 15, 0.8);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-/* Save Modal */
-.save-modal {
-  width: 420px;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--accent-cyan);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-/* Title & Text */
-.modal-title {
-  font-size: 1.6rem;
-  color: var(--accent-cyan);
-  margin-bottom: 1rem;
-}
-
-.modal-text {
-  font-size: 1rem;
-  color: var(--text-light);
-  margin-bottom: 2rem;
-}
-
-/* Actions */
-.modal-actions {
+/* ==========================================================================
+   CART ELEMENT CONTROL LISTS
+   ========================================================================== */
+.cart-item {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background 0.2s;
+  gap: 10px;
 }
 
-.btn {
-  flex: 1;
-  padding: 0.8rem;
+.cart-item:hover {
+  background: rgba(0, 119, 255, 0.02);
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.qty-controls input[type="number"] {
+  width: 60px;
+  padding: 8px;
+  border: 2px solid #e2e8f0;
   border-radius: 8px;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.primary-btn {
-  background: var(--accent-cyan);
-  border: none;
-  color: #fff;
-}
-
-.primary-btn:hover {
-  background: #00aaff;
-}
-
-.secondary-btn {
-  background: transparent;
-  border: 1px solid var(--glass-border);
-  color: var(--text-light);
-}
-
-.secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* --- Save Transaction Modal Styles --- */
-
-/* Full-screen backdrop overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(15, 23, 42, 0.45); /* Dark tint with opacity */
-  backdrop-filter: blur(8px); /* Smooth background blur */
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999; /* Ensures it stays on top of everything */
-  animation: fadeIn 0.25s ease-out;
-}
-
-/* Glassmorphism modal container */
-.save-modal.glass {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 20px 40px -15px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
-  padding: 32px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 420px;
+  color: var(--dark-navy);
   text-align: center;
-  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.2s ease;
+  background: #f8fafc;
 }
 
-/* For dark mode support (Optional, if your system uses data-theme) */
-[data-theme="dark"] .save-modal.glass {
-  background: rgba(30, 41, 59, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
+.qty-controls input::-webkit-outer-spin-button,
+.qty-controls input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
-/* Modal Headers & Typography */
-.modal-title {
-  font-size: 1.5rem;
+.qty-controls input[type="number"]:focus {
+  outline: none;
+  border-color: var(--brand-blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.1);
+}
+
+.subtotal {
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
+  color: #059669;
 }
 
-[data-theme="dark"] .modal-title {
-  color: #f1f5f9;
+.cart-total {
+  font-weight: 700;
+  margin-top: 1rem;
 }
 
-.modal-text {
-  font-size: 1rem;
-  color: #64748b;
-  line-height: 1.5;
-  margin-bottom: 28px;
-}
-
-[data-theme="dark"] .modal-text {
-  color: #94a3b8;
-}
-
-/* Action button wrapper group */
-.modal-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-/* Base button properties override */
-.save-modal .btn {
-  flex: 1;
-  padding: 12px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 10px;
+.purchase-btn {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #0077ff;
+  color: #fff;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  display: inline-flex;
+  width: 100%; /* Makes button easier to press on mobile */
+}
+
+.remove-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
   transition: all 0.2s ease;
+  margin-left: auto; /* Aligns smoothly across flexible item boxes */
 }
 
-/* Confirm Save Button */
-.save-modal .primary-btn {
-  background-color: #10b981; /* Fresh Emerald Green */
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+.remove-btn:hover {
+  background: #ef4444;
+  color: white;
+  transform: rotate(90deg);
 }
 
-.save-modal .primary-btn:hover {
-  background-color: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
-}
-
-.save-modal .primary-btn:active {
-  transform: translateY(1px);
-}
-
-/* Cancel Button */
-.save-modal .secondary-btn {
-  background-color: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
-}
-
-.save-modal .secondary-btn:hover {
-  background-color: #e2e8f0;
-  color: #1e293b;
-}
-
-[data-theme="dark"] .save-modal .secondary-btn {
-  background-color: #334155;
-  color: #cbd5e1;
-  border: 1px solid #475569;
-}
-
-[data-theme="dark"] .save-modal .secondary-btn:hover {
-  background-color: #475569;
-  color: #ffffff;
-}
-
-/* Smooth Entrance Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes scaleUp {
-  from {
-    opacity: 0;
-    transform: scale(0.92) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+.remove-btn:active {
+  transform: scale(0.9);
 }
 
 /* ==========================================================================
-   CUSTOMER NAME INPUT CONTAINER & STYLING
+   INPUTS & OVERLAYS
    ========================================================================== */
-
 .customer-info-input {
   display: flex;
   flex-direction: column;
@@ -682,7 +245,6 @@
   border-color: #0077ff;
   box-shadow: 0 0 8px rgba(0, 119, 255, 0.3);
   outline: none;
- 
 }
 
 .customer-info-input input::placeholder {
@@ -690,23 +252,358 @@
   font-style: italic;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease-out;
+}
+
 /* ==========================================================================
-   RECEIPT MODAL EXTENSION STYLE
+   GLASSMORPHISM CONFIRMATION MODAL
    ========================================================================== */
+.save-modal.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 20px 40px -15px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 32px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme="dark"] .save-modal.glass {
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+[data-theme="dark"] .modal-title {
+  color: #f1f5f9;
+}
+
+.modal-text {
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+
+[data-theme="dark"] .modal-text {
+  color: #94a3b8;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.primary-btn,
+.print-btn {
+  background-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.primary-btn:hover,
+.print-btn:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+}
+
+.secondary-btn,
+.close-btn {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.secondary-btn:hover,
+.close-btn:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+/* ==========================================================================
+   RECEIPT STYLING ARCHETYPE
+   ========================================================================== */
+.receipt-modal {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 340px;
+  font-family: monospace;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.receipt-modal h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.receipt-date {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.divider {
+  font-size: 0.9rem;
+  color: #444;
+  margin: 0.5rem 0;
+}
 
 .receipt-customer {
   margin: 12px 0 6px 0 !important;
   font-size: 0.88rem !important;
   letter-spacing: 0.3px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.03);
   padding: 8px 12px;
   border-radius: 6px;
-  border-left: 3px solid #22c55e; /* Elegant Green Accent bar */
+  border-left: 3px solid #22c55e;
   font-family: monospace;
+  text-align: left;
 }
 
 .receipt-customer strong {
-  color: rgba(255, 255, 255, 0.5) !important;
-  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  font-weight: 600;
   margin-right: 4px;
+}
+
+.receipt-items {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  text-align: left;
+}
+
+.receipt-items li {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+}
+
+.price {
+  font-weight: bold;
+}
+
+.receipt-total {
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+
+.thanks {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #0077ff;
+}
+
+/* ==========================================================================
+   ANIMATIONS & TRANSITION KEYFRAMES
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN FIXES (SMALL SCREENS)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .dashboard-content {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .search-bar {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  .search-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    padding: 1rem 0.5rem;
+  }
+
+  .qty-controls {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 5px;
+  }
+}
+
+/* ==========================================================================
+   HARDWARE HARD-COPY PRINT ENGINE MEDIA RULES
+   ========================================================================== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .receipt-modal,
+  .receipt-modal * {
+    visibility: visible;
+  }
+  .receipt-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 280px; /* Slim native layout matching thermal printer tape ribbons */
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+  .modal-actions {
+    display: none; /* Hide action buttons completely when generating prints */
+  }
+}
+
+/* Container to keep search input and processing indicator aligned */
+.search-bar-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-spinner {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  color: #00ffcc; /* Vibrant neon tint */
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+  font-weight: 500;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Glassmorphism Pagination panel styling */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.page-counter {
+  font-size: 0.95rem;
+  color: #e0e0e0;
+}
+
+.page-counter strong {
+  color: #00ffcc;
+}
+
+.pag-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.pag-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 204, 0.2);
+  border-color: #00ffcc;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+}
+
+.pag-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }

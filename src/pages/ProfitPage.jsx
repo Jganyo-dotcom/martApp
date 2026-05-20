@@ -67,7 +67,6 @@ export default function ProfitPage() {
       );
       alert(response?.message || "Item deleted successfully.");
 
-      // Update salesData state in place to stop manual window reloads
       setSalesData((prevSales) => {
         return prevSales
           .map((sale) => {
@@ -88,7 +87,6 @@ export default function ProfitPage() {
           );
       });
 
-      // Recalculate numbers locally instantly
       setSummary((prevSummary) => ({
         ...prevSummary,
         itemsSold: Math.max(0, (prevSummary?.itemsSold || 0) - quantity),
@@ -99,7 +97,7 @@ export default function ProfitPage() {
     }
   };
 
-  // 3. Flatten structural database arrays securely with structural fallbacks
+  // 3. Flatten structural database arrays securely
   const flattenedRows = [];
   salesData.forEach((sale) => {
     if (sale && Array.isArray(sale.items)) {
@@ -123,15 +121,11 @@ export default function ProfitPage() {
     }
   });
 
-  // 4. Guard and handle pagination parameters carefully
   const totalItems = flattenedRows.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
-
-  // Auto-correct page bound index if rows get cleared completely
   const normalizedCurrentPage =
     currentPage > totalPages ? totalPages : currentPage;
 
-  // Safe step back adjustment to avoid empty render spaces
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages);
@@ -142,7 +136,6 @@ export default function ProfitPage() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentRows = flattenedRows.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Common UI styling configuration object to enforce line clipping limitations
   const textTruncateStyle = {
     maxWidth: "160px",
     whiteSpace: "nowrap",
@@ -156,8 +149,12 @@ export default function ProfitPage() {
 
       <div className="container profit-container">
         <header className="profit-header">
-          <h1>Financial Overview</h1>
-          <p>Real-time tracking of sales and net earnings</p>
+          <h1 style={{ fontSize: "1.75rem", margin: "0 0 0.25rem 0" }}>
+            Financial Overview
+          </h1>
+          <p style={{ margin: 0, fontSize: "0.9rem", opacity: 0.8 }}>
+            Real-time tracking of sales and net earnings
+          </p>
         </header>
 
         {loading ? (
@@ -166,7 +163,7 @@ export default function ProfitPage() {
           </div>
         ) : (
           <>
-            {/* 3 TOP STATS CARDS */}
+            {/* TOP STATS CARDS */}
             <div className="stats-row">
               <div className="stat-card glass glow-blue">
                 <span>Total Revenue</span>
@@ -194,128 +191,203 @@ export default function ProfitPage() {
               </div>
             </div>
 
-            {/* DEFENSIVE SALES BREAKDOWN TABLE */}
+            {/* MAIN CONTENT SECTION */}
             <section className="sales-section glass">
               <h3>Recent Sales Breakdown</h3>
-              <div className="table-wrapper" style={{ overflowX: "auto" }}>
-                <table
-                  className="profit-table"
-                  style={{ width: "100%", tableLayout: "fixed" }}
-                >
-                  <colgroup>
-                    <col style={{ width: "22%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "13%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "13%" }} />
-                    <col style={{ width: "13%" }} />
-                    <col style={{ width: "8%" }} />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th>Product Name</th>
-                      <th>Qty</th>
-                      <th>Customer</th>
-                      <th>Unit Sell</th>
-                      <th>Total Profit</th>
-                      <th>Entered By</th>
-                      <th>Date</th>
-                      <th style={{ textAlign: "center" }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentRows.length === 0 ? (
+
+              {/* DESKTOP TABLE VIEW */}
+              <div className="desktop-table-view">
+                <div className="table-wrapper">
+                  <table
+                    className="profit-table"
+                    style={{ width: "100%", tableLayout: "fixed" }}
+                  >
+                    <colgroup>
+                      <col style={{ width: "22%" }} />
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "18%" }} />
+                      <col style={{ width: "13%" }} />
+                      <col style={{ width: "14%" }} />
+                      <col style={{ width: "13%" }} />
+                      <col style={{ width: "13%" }} />
+                      <col style={{ width: "8%" }} />
+                    </colgroup>
+                    <thead>
                       <tr>
-                        <td
-                          colSpan="8"
-                          style={{ textAlign: "center", padding: "20px" }}
-                        >
-                          No sales data found.
-                        </td>
+                        <th>Product Name</th>
+                        <th>Qty</th>
+                        <th>Customer</th>
+                        <th>Unit Sell</th>
+                        <th>Total Profit</th>
+                        <th>Entered By</th>
+                        <th>Date</th>
+                        <th style={{ textAlign: "center" }}>Actions</th>
                       </tr>
-                    ) : (
-                      currentRows.map((row) => (
-                        <tr key={row.uniqueKey}>
+                    </thead>
+                    <tbody>
+                      {currentRows.length === 0 ? (
+                        <tr>
                           <td
-                            className="font-bold"
-                            style={textTruncateStyle}
-                            title={row.productName}
+                            colSpan="8"
+                            style={{ textAlign: "center", padding: "20px" }}
                           >
-                            {row.productName}
-                          </td>
-                          <td>{row.quantity}</td>
-                          <td
-                            className="text-muted"
-                            style={textTruncateStyle}
-                            title={row.customerName}
-                          >
-                            {row.customerName}
-                          </td>
-                          <td>GHC{(row.unitPrice || 0).toFixed(2)}</td>
-                          <td className="text-green font-bold">
-                            +GHC{(row.profit || 0).toFixed(2)}
-                          </td>
-                          <td style={textTruncateStyle} title={row.inputer}>
-                            {row.inputer}
-                          </td>
-                          <td className="text-muted">
-                            {row.createdAt
-                              ? new Date(row.createdAt).toLocaleDateString()
-                              : "N/A"}
-                          </td>
-                          <td style={{ textAlign: "center" }}>
-                            <button
-                              className="delete-row-btn"
-                              onClick={() =>
-                                handleDelete(
-                                  row.parentSaleId,
-                                  row.inputer,
-                                  row.quantity,
-                                  row.productName,
-                                )
-                              }
-                              title="Delete Record"
-                              style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                fontSize: "1.1rem",
-                                padding: "4px",
-                              }}
-                            >
-                              🗑️
-                            </button>
+                            No sales data found.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        currentRows.map((row) => (
+                          <tr key={row.uniqueKey}>
+                            <td
+                              className="font-bold"
+                              style={textTruncateStyle}
+                              title={row.productName}
+                            >
+                              {row.productName}
+                            </td>
+                            <td>{row.quantity}</td>
+                            <td
+                              className="text-muted"
+                              style={textTruncateStyle}
+                              title={row.customerName}
+                            >
+                              {row.customerName}
+                            </td>
+                            <td>GHC {(row.unitPrice || 0).toFixed(2)}</td>
+                            <td className="text-green font-bold">
+                              +GHC {(row.profit || 0).toFixed(2)}
+                            </td>
+                            <td style={textTruncateStyle} title={row.inputer}>
+                              {row.inputer}
+                            </td>
+                            <td className="text-muted">
+                              {row.createdAt
+                                ? new Date(row.createdAt).toLocaleDateString()
+                                : "N/A"}
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <button
+                                className="delete-row-btn"
+                                onClick={() =>
+                                  handleDelete(
+                                    row.parentSaleId,
+                                    row.inputer,
+                                    row.quantity,
+                                    row.productName,
+                                  )
+                                }
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  fontSize: "1.1rem",
+                                  padding: "4px",
+                                }}
+                              >
+                                🗑️
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* MOBILE STREAMLINED CARD VIEW */}
+              <div className="mobile-cards-view">
+                {currentRows.length === 0 ? (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                      opacity: 0.7,
+                    }}
+                  >
+                    No sales data found.
+                  </div>
+                ) : (
+                  currentRows.map((row) => (
+                    <div key={row.uniqueKey} className="mobile-sale-card glass">
+                      <div className="mobile-card-row">
+                        <span className="font-bold mobile-product-title">
+                          {row.productName}
+                        </span>
+                        <button
+                          className="delete-row-btn"
+                          onClick={() =>
+                            handleDelete(
+                              row.parentSaleId,
+                              row.inputer,
+                              row.quantity,
+                              row.productName,
+                            )
+                          }
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+
+                      <div className="mobile-card-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Qty Sold</span>
+                          <span className="detail-value">{row.quantity}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Customer</span>
+                          <span
+                            className="detail-value text-muted"
+                            style={{
+                              maxWidth: "120px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {row.customerName}
+                          </span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Unit Price</span>
+                          <span className="detail-value">
+                            GHC {row.unitPrice.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Net Profit</span>
+                          <span className="detail-value text-green font-bold">
+                            +GHC {row.profit.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mobile-card-subfoot">
+                        <span>By: {row.inputer}</span>
+                        <span>
+                          {row.createdAt
+                            ? new Date(row.createdAt).toLocaleDateString()
+                            : "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
 
               {/* PAGINATION INTERFACE CONTROLS */}
               {totalPages > 1 && (
-                <div
-                  className="pagination-bar"
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "15px",
-                    marginTop: "20px",
-                  }}
-                >
+                <div className="pagination-bar">
                   <button
                     disabled={normalizedCurrentPage === 1}
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
-                    style={{
-                      padding: "6px 12px",
-                      cursor:
-                        normalizedCurrentPage === 1 ? "not-allowed" : "pointer",
-                    }}
                   >
                     Previous
                   </button>
@@ -328,13 +400,6 @@ export default function ProfitPage() {
                     onClick={() =>
                       setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                     }
-                    style={{
-                      padding: "6px 12px",
-                      cursor:
-                        normalizedCurrentPage === totalPages
-                          ? "not-allowed"
-                          : "pointer",
-                    }}
                   >
                     Next
                   </button>

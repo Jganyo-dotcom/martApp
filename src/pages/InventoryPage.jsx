@@ -135,7 +135,7 @@ export default function InventoryPage() {
       <div className="inventory-container container">
         <header className="inventory-header">
           <h1>Shop Inventory</h1>
-          <p>Manage your stock and track potential profits</p>
+          <p>Manage your stock</p>
           <button className="add-goods-btn" onClick={() => setShowModal(true)}>
             + Add New Goods
           </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { saveSaleToBackend } from "../services/productApi";
@@ -7,31 +7,54 @@ import "../styles/Dashboard.css";
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState([]); // ✅ fetched products
+  const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
-  const [customerName, setCustomerName] = useState(""); // 🆕 Customer Name Tracking State
+  const [customerName, setCustomerName] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // ✅ Fetch products from DB once
+  // ─── NEW STATES FOR PAGINATION & LOADING ───────────────────
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const itemsPerPage = 10;
+
+  const pressTimerRef = useRef(null);
+
+  // Fetch products from DB
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
         const data = await getAllProducts();
         setProducts(data);
       } catch (err) {
         console.error("Failed to load products:", err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchProducts();
   }, []);
 
-  // ✅ Filter results in real-time
+  // Reset page to 1 whenever search query updates
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Filter results in real-time
   const filteredResults = useMemo(() => {
     return products.filter((item) =>
       item.productName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [searchTerm, products]);
+
+  // ─── PAGINATION SPLITTING CRITERIA ────────────────────────
+  const totalPages = Math.ceil(filteredResults.length / itemsPerPage) || 1;
+
+  const displayedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredResults.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredResults, currentPage]);
 
   const addToCart = (item) => {
     const existingItem = cart.find((c) => c.id === item.id);
@@ -54,7 +77,6 @@ export default function DashboardPage() {
     setCart(cart.filter((c) => c.id !== id));
   };
 
-  // 🆕 Reset function to clear fields upon successful purchase
   const clearTransaction = () => {
     setCart([]);
     setCustomerName("");
@@ -65,6 +87,27 @@ export default function DashboardPage() {
   const total = cart.reduce((sum, c) => sum + c.sellingPricePerUnit * c.qty, 0);
   const mart = localStorage.getItem("mart");
 
+  // CROSS-PLATFORM LONG PRESS HANDLERS
+  const startPressTimer = () => {
+    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    pressTimerRef.current = setTimeout(() => {
+      setShowSaveModal(true);
+    }, 1000);
+  };
+
+  const cancelPressTimer = () => {
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+    };
+  }, []);
+
   return (
     <div className="dashboard">
       <Navbar brand={mart} />
@@ -73,18 +116,22 @@ export default function DashboardPage() {
         <div className="search-section">
           <div className="search-header">
             <h2>Inventory Management</h2>
-            <input
-              type="text"
-              placeholder="Start typing to filter items..."
-              className="search-bar"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <div className="search-bar-container">
+              <input
+                type="text"
+                placeholder="Start typing to filter items..."
+                className="search-bar"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {/* Async/Network Processing Indicator */}
+              {isLoading && <span className="search-spinner">Syncing...</span>}
+            </div>
           </div>
 
           <div className="results-grid">
-            {filteredResults.length > 0 ? (
-              filteredResults.map((item) => (
+            {displayedProducts.length > 0 ? (
+              displayedProducts.map((item) => (
                 <div key={item.id} className="result-card glass">
                   <div className="item-info">
                     <h4>{item.productName}</h4>
@@ -97,16 +144,42 @@ export default function DashboardPage() {
               ))
             ) : (
               <p className="no-results">
-                No hardware found matching "{searchTerm}"
+                {isLoading
+                  ? "Fetching fresh stock details..."
+                  : `No hardware found matching "${searchTerm}"`}
               </p>
             )}
           </div>
+
+          {/* ─── MODERN CONTROLLERS FOR PAGINATION ─────────────────── */}
+          {filteredResults.length > itemsPerPage && (
+            <div className="pagination-controls glass">
+              <button
+                className="pag-btn"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                ← Previous
+              </button>
+              <span className="page-counter">
+                Page <strong>{currentPage}</strong> of {totalPages}
+              </span>
+              <button
+                className="pag-btn"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="cart-section glass">
           <h3>Shopping Cart</h3>
 
-          {/* 🆕 CUSTOMER INFO SECTION */}
           <div className="customer-info-input">
             <label>Customer Name</label>
             <input
@@ -129,11 +202,11 @@ export default function DashboardPage() {
                       min="1"
                       value={item.qty}
                       onChange={(e) =>
-                        updateQty(item.id, parseInt(e.target.value))
+                        updateQty(item.id, parseInt(e.target.value) || 1)
                       }
                     />
                     <span className="subtotal">
-                      GHC{item.sellingPricePerUnit * item.qty}
+                      GHC{(item.sellingPricePerUnit * item.qty).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -170,7 +243,7 @@ export default function DashboardPage() {
           <div className="receipt-modal">
             <h2>*** Elitech Mart ***</h2>
             <p className="receipt-date">Date: {new Date().toLocaleString()}</p>
-            {/* 🆕 Display Customer Name on Receipt if provided */}
+
             {customerName && (
               <p
                 className="receipt-customer"
@@ -190,14 +263,14 @@ export default function DashboardPage() {
                 <li key={item.id}>
                   {item.productName} x {item.qty}
                   <span className="price">
-                    GHC{item.sellingPricePerUnit * item.qty}
+                    GHC{(item.sellingPricePerUnit * item.qty).toFixed(2)}
                   </span>
                 </li>
               ))}
             </ul>
 
             <div className="divider">------------------------------------</div>
-            <p className="receipt-total">TOTAL: GHC{total}</p>
+            <p className="receipt-total">TOTAL: GHC{total.toFixed(2)}</p>
             <div className="divider">------------------------------------</div>
 
             <p className="thanks">THANK YOU FOR CHOOSING ELITECH</p>
@@ -206,11 +279,11 @@ export default function DashboardPage() {
               <button
                 className="btn print-btn"
                 onClick={() => window.print()}
-                onMouseDown={() => {
-                  const timer = setTimeout(() => setShowSaveModal(true), 1000);
-                  const cancel = () => clearTimeout(timer);
-                  document.addEventListener("mouseup", cancel, { once: true });
-                }}
+                onMouseDown={startPressTimer}
+                onMouseUp={cancelPressTimer}
+                onMouseLeave={cancelPressTimer}
+                onTouchStart={startPressTimer}
+                onTouchEnd={cancelPressTimer}
               >
                 🖨 Print
               </button>
@@ -234,10 +307,9 @@ export default function DashboardPage() {
                       className="btn primary-btn"
                       onClick={async () => {
                         try {
-                          // 🔑 Sending cart array alongside customer identity context
                           await saveSaleToBackend(cart, customerName);
                           alert("Transaction saved successfully!");
-                          clearTransaction(); // Clear everything
+                          clearTransaction();
                         } catch (err) {
                           alert("Error saving transaction: " + err.message);
                         }

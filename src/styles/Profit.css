@@ -7,7 +7,7 @@
   margin-bottom: 2.5rem;
 }
 
-/* Stats Row */
+/* Stats Row Layout */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -46,14 +46,6 @@
   box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
 }
 
-.trend {
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-.trend.up {
-  color: #10b981;
-}
-
 /* Table Styling */
 .sales-section {
   padding: 2rem;
@@ -66,7 +58,7 @@
 }
 
 .table-wrapper {
-  overflow-x: auto; /* Responsive scroll for small screens */
+  width: 100%;
 }
 
 .profit-table {
@@ -89,10 +81,6 @@
   font-size: 0.95rem;
 }
 
-.profit-table tr:hover {
-  background: rgba(248, 250, 252, 0.5);
-}
-
 /* Helpers */
 .text-green {
   color: #10b981;
@@ -104,6 +92,87 @@
   font-weight: 700;
 }
 
+/* ==========================================================================
+   MOBILE SMOOTH LAYOUT SWITCH ARCHITECTURE
+   ========================================================================== */
+
+/* Show desktop view, hide mobile view items by default */
+.desktop-table-view {
+  display: block;
+}
+.mobile-cards-view {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-table-view {
+    display: none;
+  }
+  .mobile-cards-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .mobile-sale-card {
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .mobile-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mobile-product-title {
+    font-size: 1.05rem;
+    max-width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    whitespace: nowrap;
+  }
+
+  .mobile-card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1rem;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .detail-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-value {
+    font-size: 0.95rem;
+  }
+
+  .mobile-card-subfoot {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+}
+
 @media (max-width: 640px) {
   .stats-row {
     grid-template-columns: 1fr;
@@ -111,12 +180,10 @@
 }
 
 /* ==========================================================================
-   PAGINATION STRUCTURE & LAYOUT
+   PAGINATION STRUCTURE & DESIGN 
    ========================================================================== */
 
-/* Target the wrapper container holding your buttons and text */
-.sales-section .table-wrapper + div,
-div[style*="justify-content: center"] {
+.pagination-bar {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
@@ -126,13 +193,9 @@ div[style*="justify-content: center"] {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ==========================================================================
-   BUTTON DESIGN (PREVIOUS / NEXT)
-   ========================================================================== */
-
-.sales-section div button {
+.pagination-bar button {
   background: rgba(255, 255, 255, 0.05) !important;
-  color:black !important;
+  color: white !important; /* Fixed dark contrast visibility */
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   padding: 10px 24px !important;
   font-size: 0.88rem !important;
@@ -146,21 +209,18 @@ div[style*="justify-content: center"] {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Elegant blue glow state for active pagination choices */
-.sales-section div button:not(:disabled):hover {
+.pagination-bar button:not(:disabled):hover {
   background: rgba(255, 255, 255, 0.12) !important;
   border-color: #3b82f6 !important;
   box-shadow: 0 0 16px rgba(59, 130, 246, 0.45) !important;
   transform: translateY(-1px);
 }
 
-/* Tactile feedback on click pressure */
-.sales-section div button:not(:disabled):active {
+.pagination-bar button:not(:disabled):active {
   transform: translateY(1px);
 }
 
-/* Clean transparent styling for inactive borders */
-.sales-section div button:disabled {
+.pagination-bar button:disabled {
   background: rgba(255, 255, 255, 0.02) !important;
   color: rgba(255, 255, 255, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.05) !important;
@@ -168,12 +228,7 @@ div[style*="justify-content: center"] {
   box-shadow: none !important;
 }
 
-/* ==========================================================================
-   PAGE COUNTER & BADGE NUMBERS
-   ========================================================================== */
-
-/* The middle section info wrapper text */
-.sales-section div span {
+.pagination-bar span {
   font-size: 0.92rem !important;
   color: rgba(255, 255, 255, 0.6) !important;
   font-weight: 500;
@@ -182,14 +237,9 @@ div[style*="justify-content: center"] {
   gap: 8px;
 }
 
-/* Highlighted current active index number marker box */
-.sales-section div span strong {
-  background: linear-gradient(
-    135deg,
-    #22c55e,
-    #15803d
-  ) !important; /* Green gradient for profit dashboard consistency */
-  color:black#ffffff !important;
+.pagination-bar span strong {
+  background: linear-gradient(135deg, #22c55e, #15803d) !important;
+  color: #ffffff !important; /* Fixed the double property syntax string break error */
   padding: 4px 12px !important;
   border-radius: 6px !important;
   font-weight: 700 !important;
@@ -199,25 +249,21 @@ div[style*="justify-content: center"] {
   display: inline-block;
 }
 
-/* ==========================================================================
-   RESPONSIVE LAYOUT FOR SMALL SCREENS
-   ========================================================================== */
-
+/* Pagination stack on extra tight viewports */
 @media (max-width: 540px) {
-  .sales-section .table-wrapper + div,
-  div[style*="justify-content: center"] {
+  .pagination-bar {
     flex-direction: column !important;
     gap: 16px !important;
   }
 
-  .sales-section div button {
+  .pagination-bar button {
     width: 100% !important;
     text-align: center;
     padding: 12px !important;
   }
 
-  .sales-section div span {
-    order: -1 !important; /* Forces the text to stay beautifully above the buttons when stacked */
+  .pagination-bar span {
+    order: -1 !important;
     margin-bottom: 4px;
   }
 }
