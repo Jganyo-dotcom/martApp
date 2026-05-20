@@ -86,6 +86,7 @@ export default function DashboardPage() {
 
   const total = cart.reduce((sum, c) => sum + c.sellingPricePerUnit * c.qty, 0);
   const mart = localStorage.getItem("mart");
+  const user = localStorage.getItem("user");
 
   // CROSS-PLATFORM LONG PRESS HANDLERS
   const startPressTimer = () => {
@@ -110,7 +111,7 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      <Navbar brand={mart} user={mart} />
+      <Navbar brand={mart} user={user} />
 
       <div className="dashboard-content">
         <div className="search-section">

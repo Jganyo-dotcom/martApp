@@ -57,7 +57,8 @@ export default function InventoryPage() {
     };
     fetchProducts();
   }, []);
-
+  const mart = localStorage.getItem("mart");
+  const user = localStorage.getItem("user");
   const calculations = useMemo(() => {
     const boxes = typeof form.boxesCount === "number" ? form.boxesCount : 1;
     const qtyPerBox =
@@ -130,7 +131,7 @@ export default function InventoryPage() {
 
   return (
     <div className="inventory-page">
-      <Navbar />
+      <Navbar brand={mart} user={user} />
 
       <div className="inventory-container container">
         <header className="inventory-header">

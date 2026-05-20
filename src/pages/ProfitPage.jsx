@@ -120,7 +120,8 @@ export default function ProfitPage() {
       });
     }
   });
-
+  const mart = localStorage.getItem("mart");
+  const user = localStorage.getItem("user");
   const totalItems = flattenedRows.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const normalizedCurrentPage =
@@ -145,7 +146,7 @@ export default function ProfitPage() {
 
   return (
     <div className="profit-page">
-      <Navbar />
+      <Navbar brand={mart} user={user} />
 
       <div className="container profit-container">
         <header className="profit-header">
