@@ -19,8 +19,8 @@ export default function LoginPage() {
       // Simulate API call - Replace with your actual loginUser service
       const result = await loginUser(formData.identifier, formData.password);
 
-      if (result.token) {
-        localStorage.setItem("authToken", result.token);
+      if (result.user) {
+        localStorage.setItem("user", result.username);
         localStorage.setItem("mart", result.user.mart);
         navigate("/dashboard");
       } else {

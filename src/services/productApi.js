@@ -1,20 +1,14 @@
-//const BaseApi = "http://127.0.0.1:4444/api/product";
+//const BaseApi = "http://127.0.0.1:5173/api/product";
 const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
-
-// ✅ Helper to get token (from localStorage or context)
-const getToken = () => localStorage.getItem("authToken");
 
 // ✅ Fetch all products
 export const getAllProducts = async () => {
   try {
     const response = await fetch(`${BaseApi}/get-products`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`, // 🔑 attach token
-      },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", // 🔑 send cookies
     });
-
     const data = await response.json();
     return data.products;
   } catch (error) {
@@ -28,13 +22,10 @@ export const addProduct = async (productData) => {
   try {
     const response = await fetch(`${BaseApi}/add-product`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`, // 🔑 attach token
-      },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(productData),
     });
-
     const data = await response.json();
     return data.product;
   } catch (error) {
@@ -43,13 +34,12 @@ export const addProduct = async (productData) => {
   }
 };
 
+// ✅ Save sale
 export const saveSaleToBackend = async (cart, customerName) => {
   const response = await fetch(`${BaseApi}/add-sale`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
-    },
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       items: cart.map((item) => ({
         productId: item.id,
@@ -58,57 +48,42 @@ export const saveSaleToBackend = async (cart, customerName) => {
         unitPrice: item.price,
         costPrice: item.costPrice,
       })),
-      customerName: customerName || "Walking Customer", // Default label fallback
+      customerName: customerName || "Walking Customer",
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to save sale");
-  }
-
+  if (!response.ok) throw new Error("Failed to save sale");
   return await response.json();
 };
 
+// ✅ Delete product
 export const handleDelete = async (productId) => {
   try {
     const response = await fetch(`${BaseApi}/delete-product/${productId}`, {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
+      credentials: "include",
     });
     return response;
-
-    // Refresh inventory after deletion
   } catch (err) {
     alert("Error deleting product: " + err.message);
   }
 };
 
-// src/services/profitApi.js
-
-// Fetch total profit for the current mart
+// ✅ Fetch total profit
 export const fetchTotalProfit = async () => {
   try {
     const response = await fetch(`${BaseApi}/profit`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
+      credentials: "include",
     });
-
     if (!response.ok) throw new Error("Failed to fetch total profit");
-
-    const data = await response.json();
-    console.log("Total Profit:", data);
-    return data; // { mart: "...", totalProfit: 1234 }
+    return await response.json();
   } catch (err) {
     console.error("Error fetching total profit:", err.message);
     throw err;
   }
 };
 
-// src/services/salesApi.js
-// src/services/salesApi.js
+// ✅ Delete sale item
 export const deleteSaleItem = async (
   saleId,
   inputer,
@@ -120,16 +95,12 @@ export const deleteSaleItem = async (
       `${BaseApi}/sales/${saleId}/item/${encodeURIComponent(productName)}`,
       {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
-        },
-        body: JSON.stringify({ inputer, quantity }), // pass extra params safely
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ inputer, quantity }),
       },
     );
-
     if (!response.ok) throw new Error("Failed to delete sale item");
-
     return await response.json();
   } catch (err) {
     console.error("Error deleting sale item:", err.message);
@@ -137,47 +108,34 @@ export const deleteSaleItem = async (
   }
 };
 
+// ✅ Placeholder actions
 export const handleUpdate = (productId) => {
-  // TODO: open update modal
   alert(`Update product ${productId}`);
 };
 
 export const handleAdd = (productId) => {
-  // TODO: open add modal
   alert(`Add more stock for product ${productId}`);
 };
 
-// src/services/salesService.js
-
-// Fetch all sales records
+// ✅ Fetch all sales
 export const fetchSales = async () => {
   try {
     const response = await fetch(`${BaseApi}/sales`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
+      credentials: "include",
     });
-
     if (!response.ok) throw new Error("Failed to fetch sales");
-
-    const data = await response.json();
-    console.log("Raw API Response in service:", data);
-
-    // ✅ FIX: Since data is already the array [0: {...}, 1: {...}], return it directly!
-    console.log(data);
-    return data;
+    return await response.json();
   } catch (err) {
     console.error("Error fetching sales:", err.message);
     throw err;
   }
 };
-// Fetch profit summary (total revenue, profit, items sold)
+
+// ✅ Fetch profit summary
 export const fetchProfitSummary = async () => {
   try {
     const response = await fetch(`${BaseApi}/sales/summary`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
+      credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch profit summary");
     return await response.json();
