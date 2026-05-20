@@ -20,7 +20,7 @@ export default function LoginPage() {
       const result = await loginUser(formData.identifier, formData.password);
 
       if (result.user) {
-        localStorage.setItem("user", result.username);
+        localStorage.setItem("user", result.user.username);
         localStorage.setItem("mart", result.user.mart);
         navigate("/dashboard");
       } else {
