@@ -4,7 +4,7 @@ const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
 // ✅ Fetch all products
 export const getAllProducts = async () => {
   try {
-    const response = await fetch(`${BaseApi}/get-products`, {
+    const response = await fetch("/api/product/get-products", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // 🔑 send cookies
@@ -108,15 +108,47 @@ export const deleteSaleItem = async (
   }
 };
 
-// ✅ Placeholder actions
-export const handleUpdate = (productId) => {
-  alert(`Update product ${productId}`);
+// 1. Fetch single item by ID
+export const getProductById = async (productId) => {
+  console.log(productId);
+  const response = await fetch(`${BaseApi}/get-product/${productId}`, {
+    method: "GET", // use GET for fetching
+    credentials: "include", // send cookies
+  });
+
+  // fetch returns a Response object, so you need to parse JSON
+  const data = await response.json();
+  return data;
 };
 
-export const handleAdd = (productId) => {
-  alert(`Add more stock for product ${productId}`);
+// 2. Submit dynamic box/pack increment update payload
+export const handleAdd = async (productId, payload) => {
+  const response = await fetch(`${BaseApi}/add-packs/${productId}`, {
+    method: "PATCH",
+    credentials: "include", // send cookies
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload), // attach payload
+  });
+
+  const data = await response.json();
+  return data;
 };
 
+export const handleUpdate = async (productId, payload) => {
+  const response = await fetch(`${BaseApi}/products/add-tock/${productId}`, {
+    method: "PATCH",
+    credentials: "include", // send cookies
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload), // attach payload
+  });
+
+  const data = await response.json();
+  return data;
+};
 // ✅ Fetch all sales
 export const fetchSales = async () => {
   try {

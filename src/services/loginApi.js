@@ -1,9 +1,9 @@
 const BaseApi = "https://martbackend-alnb.onrender.com/api/user";
- //const BaseApi = "http://127.0.0.1:4444/api/user";
+//const BaseApi = "http://127.0.0.1:4444/api/user";
 async function loginUser(identifier, password) {
   try {
     const user = { identifier, password }; // ✅ match backend
-    const response = await fetch(`${BaseApi}/login`, {
+    const response = await fetch("/api/user/login", {
       // 🔑 plural "users"
       method: "POST",
       headers: { "Content-Type": "application/json" },
