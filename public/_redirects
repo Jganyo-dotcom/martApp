@@ -1,3 +1,5 @@
+/api/products   https://martbackend-alnb.onrender.com/api/product/get-products   200
+
 /api/*    https://martbackend-alnb.onrender.com/api/user/login  200
 
 /products/*    https://martbackend-alnb.onrender.com/api/product/get-products  200
