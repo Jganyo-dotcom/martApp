@@ -20,7 +20,7 @@ export const getAllProducts = async () => {
 // ✅ Add a new product
 export const addProduct = async (productData) => {
   try {
-    const response = await fetch(`${BaseApi}/add-product`, {
+    const response = await fetch("/addProduct", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -36,7 +36,7 @@ export const addProduct = async (productData) => {
 
 // ✅ Save sale
 export const saveSaleToBackend = async (cart, customerName) => {
-  const response = await fetch(`${BaseApi}/add-sale`, {
+  const response = await fetch("/addSale", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -166,7 +166,7 @@ export const fetchSales = async () => {
 // ✅ Fetch profit summary
 export const fetchProfitSummary = async () => {
   try {
-    const response = await fetch(`${BaseApi}/sales/summary`, {
+    const response = await fetch("saleSummary", {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch profit summary");
