@@ -72,7 +72,7 @@ export const handleDelete = async (productId) => {
 // ✅ Fetch total profit
 export const fetchTotalProfit = async () => {
   try {
-    const response = await fetch("/api/products", {
+    const response = await fetch("/api/profit", {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch total profit");
