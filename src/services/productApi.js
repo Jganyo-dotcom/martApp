@@ -4,7 +4,7 @@ const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
 // ✅ Fetch all products
 export const getAllProducts = async () => {
   try {
-    const response = await fetch("/api/product/get-products", {
+    const response = await fetch("/products", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // 🔑 send cookies
