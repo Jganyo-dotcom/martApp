@@ -8,5 +8,8 @@
 
 /saleSummary/*    https://martbackend-alnb.onrender.com/api/product/sales/summary  200
 
+/profit/*    https://martbackend-alnb.onrender.com/api/product/profit  200
+
+
 
 /*    /index.html 200
