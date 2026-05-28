@@ -4,6 +4,8 @@
 
 /products/*    https://martbackend-alnb.onrender.com/api/product/get-products  200
 
+/getSales/*    https://martbackend-alnb.onrender.com/api/product/sales  200
+
 /addSale/*    https://martbackend-alnb.onrender.com/api/product/add-sale  200
 
 /addProduct/*    https://martbackend-alnb.onrender.com/api/product/add-product  200
