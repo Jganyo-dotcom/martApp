@@ -2,5 +2,11 @@
 
 /products/*    https://martbackend-alnb.onrender.com/api/product/get-products  200
 
+/addSale/*    https://martbackend-alnb.onrender.com/api/product/add-sale  200
+
+/addProduct/*    https://martbackend-alnb.onrender.com/api/product/add-product  200
+
+/saleSummary/*    https://martbackend-alnb.onrender.com/api/product/sales/summary  200
+
 
 /*    /index.html 200
