@@ -152,7 +152,7 @@ export const handleUpdate = async (productId, payload) => {
 // ✅ Fetch all sales
 export const fetchSales = async () => {
   try {
-    const response = await fetch(`${BaseApi}/sales`, {
+    const response = await fetch("/getSales", {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch sales");
