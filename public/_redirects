@@ -12,4 +12,6 @@
 
 /saleSummary/*    https://martbackend-alnb.onrender.com/api/product/sales/summary  200
 
-/*    /index.html 200
+/baseRoute        https://martbackend-alnb.onrender.com/api/product   200
+
+/*    /index.html 200         
