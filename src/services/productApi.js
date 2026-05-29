@@ -137,7 +137,7 @@ export const handleAdd = async (productId, payload) => {
 };
 
 export const handleUpdate = async (productId, payload) => {
-  const response = await fetch(`${BaseApi}/products/add-tock/${productId}`, {
+  const response = await fetch(`/baseRoute/add-tock/${productId}`, {
     method: "PATCH",
     credentials: "include", // send cookies
     headers: {
