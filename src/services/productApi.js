@@ -123,7 +123,7 @@ export const getProductById = async (productId) => {
 
 // 2. Submit dynamic box/pack increment update payload
 export const handleAdd = async (productId, payload) => {
-  const response = await fetch(`${BaseApi}/add-packs/${productId}`, {
+  const response = await fetch(`/baseRoute/add-packs/${productId}`, {
     method: "PATCH",
     credentials: "include", // send cookies
     headers: {
