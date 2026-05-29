@@ -1,5 +1,5 @@
 //const BaseApi = "http://127.0.0.1:4444/api/product";
-const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
+const BaseApi = "baseRoute";
 
 // ✅ Fetch all products
 export const getAllProducts = async () => {
