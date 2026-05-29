@@ -92,7 +92,7 @@ export const deleteSaleItem = async (
 ) => {
   try {
     const response = await fetch(
-      `${BaseApi}/sales/${saleId}/item/${encodeURIComponent(productName)}`,
+     `/baseRoute/sales/${saleId}/item/${encodeURIComponent(productName)}`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
