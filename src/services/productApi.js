@@ -1,5 +1,5 @@
 //const BaseApi = "http://127.0.0.1:4444/api/product";
-const BaseApi = "baseRoute";
+const BaseApi = "ii";
 
 // ✅ Fetch all products
 export const getAllProducts = async () => {
