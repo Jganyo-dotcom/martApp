@@ -59,7 +59,7 @@ export const saveSaleToBackend = async (cart, customerName) => {
 // ✅ Delete product
 export const handleDelete = async (productId) => {
   try {
-    const response = await fetch(`${BaseApi}/delete-product/${productId}`, {
+    const response = await fetch(`/baseRoute/delete-product/${productId}`, {
       method: "DELETE",
       credentials: "include",
     });
