@@ -111,7 +111,7 @@ export const deleteSaleItem = async (
 // 1. Fetch single item by ID
 export const getProductById = async (productId) => {
   console.log(productId);
-  const response = await fetch(`BaseApi/get-product/${productId}`, {
+  const response = await fetch(`/baseRoute/get-product/${productId}`, {
     method: "GET", // use GET for fetching
     credentials: "include", // send cookies
   });
