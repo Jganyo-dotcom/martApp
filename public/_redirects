@@ -1,17 +1,18 @@
-/api/profit   https://martbackend-alnb.onrender.com/api/product/profit   200
 
-/api/*    https://martbackend-alnb.onrender.com/api/user/login  200
+/api/*   https://martbackend-alnb.onrender.com/api/:splat   200
+/*       /index.html   200
 
-/products/*    https://martbackend-alnb.onrender.com/api/product/get-products  200
 
-/getSales/*    https://martbackend-alnb.onrender.com/api/product/sales  200
+/prodts/*    https://martbackend-alnb.onrender.com/api/product/get-products  200
 
-/addSale/*    https://martbackend-alnb.onrender.com/api/product/add-sale  200
+/geales/*    https://martbackend-alnb.onrender.com/api/product/sales  200
 
-/addProduct/*    https://martbackend-alnb.onrender.com/api/product/add-product  200
+/aSale/*    https://martbackend-alnb.onrender.com/api/product/add-sale  200
 
-/saleSummary/*    https://martbackend-alnb.onrender.com/api/product/sales/summary  200
+/adoduct/*    https://martbackend-alnb.onrender.com/api/product/add-product  200
 
-/baseRoute/*   https://martbackend-alnb.onrender.com/api/product/:splat   200
+/smmary/*    https://martbackend-alnb.onrender.com/api/product/sales/summary  200
 
-/*    /index.html 200         
+/bate/*   https://martbackend-alnb.onrender.com/api/product/:splat   200
+
+         

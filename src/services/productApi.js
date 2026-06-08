@@ -1,10 +1,12 @@
-//const BaseApi = "http://127.0.0.1:4444/api/product";
-const BaseApi = "ii";
+const BaseApi = "http://127.0.0.1:4444/api/product/";
+//const BaseApi = "ii";
+//const BaseApi = "https://martbackend-alnb.onrender.com/api/product";
 
 // ✅ Fetch all products
 export const getAllProducts = async () => {
   try {
-    const response = await fetch("/products", {
+    ///products",
+    const response = await fetch("api/product/get-products", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // 🔑 send cookies
@@ -20,7 +22,7 @@ export const getAllProducts = async () => {
 // ✅ Add a new product
 export const addProduct = async (productData) => {
   try {
-    const response = await fetch("/addProduct", {
+    const response = await fetch("api/product/add-product", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -36,7 +38,7 @@ export const addProduct = async (productData) => {
 
 // ✅ Save sale
 export const saveSaleToBackend = async (cart, customerName) => {
-  const response = await fetch("/addSale", {
+  const response = await fetch("api/product/add-sale", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -51,15 +53,17 @@ export const saveSaleToBackend = async (cart, customerName) => {
       customerName: customerName || "Walking Customer",
     }),
   });
-
+  const data = await response.json();
   if (!response.ok) throw new Error("Failed to save sale");
-  return await response.json();
+
+  return data;
 };
 
 // ✅ Delete product
 export const handleDelete = async (productId) => {
   try {
-    const response = await fetch(`/baseRoute/delete-product/${productId}`, {
+    ///baseRoute/delete-product
+    const response = await fetch(`api/product/delete-product/${productId}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -72,7 +76,7 @@ export const handleDelete = async (productId) => {
 // ✅ Fetch total profit
 export const fetchTotalProfit = async () => {
   try {
-    const response = await fetch("/api/profit", {
+    const response = await fetch("api/product/profit", {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch total profit");
@@ -92,7 +96,7 @@ export const deleteSaleItem = async (
 ) => {
   try {
     const response = await fetch(
-     `/baseRoute/sales/${saleId}/item/${encodeURIComponent(productName)}`,
+      `api/product/sales/${saleId}/item/${encodeURIComponent(productName)}`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -111,7 +115,7 @@ export const deleteSaleItem = async (
 // 1. Fetch single item by ID
 export const getProductById = async (productId) => {
   console.log(productId);
-  const response = await fetch(`/baseRoute/get-product/${productId}`, {
+  const response = await fetch(`api/product/get-product/${productId}`, {
     method: "GET", // use GET for fetching
     credentials: "include", // send cookies
   });
@@ -123,7 +127,7 @@ export const getProductById = async (productId) => {
 
 // 2. Submit dynamic box/pack increment update payload
 export const handleAdd = async (productId, payload) => {
-  const response = await fetch(`/baseRoute/add-packs/${productId}`, {
+  const response = await fetch(`api/product/add-packs/${productId}`, {
     method: "PATCH",
     credentials: "include", // send cookies
     headers: {
@@ -137,8 +141,8 @@ export const handleAdd = async (productId, payload) => {
 };
 
 export const handleUpdate = async (productId, payload) => {
-  const response = await fetch(`/baseRoute/add-tock/${productId}`, {
-    method: "PATCH",
+  const response = await fetch(`api/product/update-All/${productId}`, {
+    method: "PUT",
     credentials: "include", // send cookies
     headers: {
       "Content-Type": "application/json",
@@ -152,7 +156,8 @@ export const handleUpdate = async (productId, payload) => {
 // ✅ Fetch all sales
 export const fetchSales = async () => {
   try {
-    const response = await fetch("/getSales", {
+    ///getSales
+    const response = await fetch(`api/product/sales`, {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch sales");
@@ -166,7 +171,8 @@ export const fetchSales = async () => {
 // ✅ Fetch profit summary
 export const fetchProfitSummary = async () => {
   try {
-    const response = await fetch("saleSummary", {
+    //saleSummary
+    const response = await fetch("api/product/saleSummary", {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch profit summary");

@@ -308,8 +308,8 @@ export default function DashboardPage() {
                       className="btn primary-btn"
                       onClick={async () => {
                         try {
-                          await saveSaleToBackend(cart, customerName);
-                          alert("Transaction saved successfully!");
+                          const res = await saveSaleToBackend(cart, customerName);
+                          alert(res.message);
                           clearTransaction();
                         } catch (err) {
                           alert("Error saving transaction: " + err.message);
