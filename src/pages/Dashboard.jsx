@@ -26,7 +26,12 @@ export default function DashboardPage() {
       setIsLoading(true);
       try {
         const data = await getAllProducts();
-        setProducts(data);
+        // FIXED: Extract the raw products array from the backend envelope wrapper response
+        if (data && data.products) {
+          setProducts(data.products);
+        } else {
+          setProducts(Array.isArray(data) ? data : []);
+        }
       } catch (err) {
         console.error("Failed to load products:", err.message);
       } finally {
@@ -58,7 +63,13 @@ export default function DashboardPage() {
 
   const addToCart = (item) => {
     const existingItem = cart.find((c) => c.id === item.id);
+    
     if (existingItem) {
+      // Safety stock guard validation check
+      if (existingItem.qty >= item.unitsLeft) {
+        alert(`Cannot add more. Only ${item.unitsLeft} units are available in total stock.`);
+        return;
+      }
       setCart(
         cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c)),
       );
@@ -67,9 +78,15 @@ export default function DashboardPage() {
     }
   };
 
-  const updateQty = (id, qty) => {
+  const updateQty = (id, qty, unitsLeft) => {
+    const targetQty = Math.max(1, qty);
+    // Prevent manual numeric input values bypassing actual remaining quantities
+    if (targetQty > unitsLeft) {
+      alert(`Stock Limit Exceeded. Only ${unitsLeft} units are left.`);
+      return;
+    }
     setCart(
-      cart.map((c) => (c.id === id ? { ...c, qty: Math.max(1, qty) } : c)),
+      cart.map((c) => (c.id === id ? { ...c, qty: targetQty } : c)),
     );
   };
 
@@ -132,17 +149,30 @@ export default function DashboardPage() {
 
           <div className="results-grid">
             {displayedProducts.length > 0 ? (
-              displayedProducts.map((item) => (
-                <div key={item.id} className="result-card glass">
-                  <div className="item-info">
-                    <h4>{item.productName}</h4>
-                    <p className="price-tag">GHC{item.sellingPricePerUnit}</p>
+              displayedProducts.map((item) => {
+                // Determine if item runs out of stock inventory bounds
+                const isOutOfStock = item.unitsLeft <= 0;
+
+                return (
+                  <div key={item.id} className={`result-card glass ${isOutOfStock ? "out-of-stock-card" : ""}`}>
+                    <div className="item-info">
+                      <h4>{item.productName}</h4>
+                      <p className="price-tag">GHC{item.sellingPricePerUnit}</p>
+                      <small style={{ color: isOutOfStock ? "#ff4d4d" : "#a3b3cc" }}>
+                        {isOutOfStock ? "None left" : `In Stock: ${item.unitsLeft}`}
+                      </small>
+                    </div>
+                    {/* Dynamic Action State Button Mapping */}
+                    <button 
+                      className={`add-btn ${isOutOfStock ? "disabled-btn" : ""}`} 
+                      onClick={() => addToCart(item)}
+                      disabled={isOutOfStock}
+                    >
+                      {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                    </button>
                   </div>
-                  <button className="add-btn" onClick={() => addToCart(item)}>
-                    Add to Cart
-                  </button>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className="no-results">
                 {isLoading
@@ -203,7 +233,7 @@ export default function DashboardPage() {
                       min="1"
                       value={item.qty}
                       onChange={(e) =>
-                        updateQty(item.id, parseInt(e.target.value) || 1)
+                        updateQty(item.id, parseInt(e.target.value) || 1, item.unitsLeft)
                       }
                     />
                     <span className="subtotal">
@@ -252,7 +282,7 @@ export default function DashboardPage() {
                   textAlign: "left",
                   fontSize: "0.9rem",
                   textTransform: "uppercase",
-                }}
+                  }}
               >
                 <strong>Customer:</strong> {customerName}
               </p>
