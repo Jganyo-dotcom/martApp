@@ -13,7 +13,6 @@ export default function DashboardPage() {
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   // ─── MULTI-SESSION BASKET CONTROLLER STATES ────────────────
-  // Initialize sessions from localStorage or default to one blank active tab
   const [sessions, setSessions] = useState(() => {
     const saved = localStorage.getItem("elitech_pos_sessions");
     return saved ? JSON.parse(saved) : [{ id: Date.now(), customerName: "", cart: [] }];
@@ -32,7 +31,7 @@ export default function DashboardPage() {
     localStorage.setItem("elitech_pos_sessions", JSON.stringify(sessions));
   }, [sessions]);
 
-  // Extract the active basket state based on the selected session tab
+  // Extract active basket states
   const activeSession = useMemo(() => {
     return sessions.find(s => s.id === currentSessionId) || sessions[0];
   }, [sessions, currentSessionId]);
@@ -40,9 +39,23 @@ export default function DashboardPage() {
   const cart = activeSession?.cart || [];
   const customerName = activeSession?.customerName || "";
 
-  // Helper function to update properties inside the currently active customer tab
+  // Helper function to update active workspace properties
   const updateActiveSessionData = (updatedFields) => {
     setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, ...updatedFields } : s));
+  };
+
+  // ─── 🌟 NEW: GLOBAL REAL-TIME VIRTUAL STOCK CALCULATOR ───
+  // This calculates how many units are truly available for the CURRENT tab,
+  // by subtracting what ALL OTHER tabs have already locked up.
+  const getVirtualStock = (productId, backendUnitsLeft) => {
+    const unitsClaimedByOtherTabs = sessions
+      .filter(s => s.id !== currentSessionId) // Exclude current active tab
+      .reduce((sum, s) => {
+        const itemInOtherCart = s.cart.find(c => c.id === productId);
+        return sum + (itemInOtherCart ? itemInOtherCart.qty : 0);
+      }, 0);
+
+    return Math.max(0, backendUnitsLeft - unitsClaimedByOtherTabs);
   };
 
   // ─── ADD / SWITCH / TERMINATE BASKET QUEUES ────────────────
@@ -59,14 +72,12 @@ export default function DashboardPage() {
   };
 
   const closeSession = (idToClose, e) => {
-    e.stopPropagation(); // Avoid triggering tab selection changes
+    e.stopPropagation();
     if (sessions.length === 1) {
-      // Keep at least one active workbench open
       setSessions([{ id: Date.now(), customerName: "", cart: [] }]);
       setCurrentSessionId(Date.now());
       return;
     }
-    
     const remaining = sessions.filter(s => s.id !== idToClose);
     setSessions(remaining);
     if (currentSessionId === idToClose) {
@@ -111,27 +122,35 @@ export default function DashboardPage() {
     return filteredResults.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredResults, currentPage]);
 
-  // ─── CART ACTIONS RELATED ONLY TO ACTIVE SESSION ───────────
+  // ─── CART ACTIONS INCORPORATING VIRTUAL GUARDS ───────────
   const addToCart = (item) => {
+    const virtualUnitsLeft = getVirtualStock(item.id, item.unitsLeft);
     const existingItem = cart.find((c) => c.id === item.id);
     let updatedCart = [];
 
     if (existingItem) {
-      if (existingItem.qty >= item.unitsLeft) {
-        alert(`Cannot add more. Only ${item.unitsLeft} units are available.`);
+      // Guard: Check current cart quantity against dynamically allowed virtual stock bounds
+      if (existingItem.qty >= virtualUnitsLeft) {
+        alert(`Stock locked by another open customer tab! Only ${virtualUnitsLeft} remaining units are safely available for this customer.`);
         return;
       }
       updatedCart = cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c));
     } else {
+      if (virtualUnitsLeft <= 0) {
+        alert("This item is currently sitting in another customer's pending cart tab and is unavailable.");
+        return;
+      }
       updatedCart = [...cart, { ...item, qty: 1 }];
     }
     updateActiveSessionData({ cart: updatedCart });
   };
 
-  const updateQty = (id, qty, unitsLeft) => {
+  const updateQty = (id, qty, backendUnitsLeft) => {
     const targetQty = Math.max(1, qty);
-    if (targetQty > unitsLeft) {
-      alert(`Stock Limit Exceeded. Only ${unitsLeft} units are left.`);
+    const virtualUnitsLeft = getVirtualStock(id, backendUnitsLeft);
+
+    if (targetQty > virtualUnitsLeft) {
+      alert(`Stock Limit Conflict! Other active checkout tabs hold portions of this stock. Max allowed for this customer: ${virtualUnitsLeft} units.`);
       return;
     }
     const updatedCart = cart.map((c) => (c.id === id ? { ...c, qty: targetQty } : c));
@@ -144,7 +163,6 @@ export default function DashboardPage() {
   };
 
   const clearTransaction = () => {
-    // Completely clear current tab data down to initial configuration
     updateActiveSessionData({ cart: [], customerName: "" });
     setShowReceipt(false);
     setShowSaveModal(false);
@@ -154,7 +172,6 @@ export default function DashboardPage() {
   const mart = localStorage.getItem("mart");
   const user = localStorage.getItem("user");
 
-  // LONG PRESS TIMER LOGIC FOR BACKEND SAVE ACTIONS
   const startPressTimer = () => {
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
     pressTimerRef.current = setTimeout(() => {
@@ -173,7 +190,6 @@ export default function DashboardPage() {
     <div className="dashboard">
       <Navbar brand={mart} user={user} />
 
-      {/* ─── DYNAMIC MULTI-CUSTOMER SERVICE SESSION TABS TRUNK ─── */}
       <div className="session-tabs-bar glass">
         <div className="tabs-container">
           {sessions.map((s, index) => (
@@ -214,20 +230,36 @@ export default function DashboardPage() {
           <div className="results-grid">
             {displayedProducts.length > 0 ? (
               displayedProducts.map((item) => {
-                const isOutOfStock = item.unitsLeft <= 0;
+                // Get virtual real-time allowed stock remaining for this item
+                const virtualUnitsLeft = getVirtualStock(item.id, item.unitsLeft);
+                const isOutOfStock = virtualUnitsLeft <= 0;
+
+                // Find out if current customer already has some in their basket
+                const currentCartItem = cart.find(c => c.id === item.id);
+                const currentCustomerQty = currentCartItem ? currentCartItem.qty : 0;
+
                 return (
                   <div key={item.id} className={`result-card glass ${isOutOfStock ? "out-of-stock-card" : ""}`}>
                     <div className="item-info">
                       <h4>{item.productName}</h4>
                       <p className="price-tag">GHC{item.sellingPricePerUnit}</p>
-                      <small style={{ color: isOutOfStock ? "#ff4d4d" : "#a3b3cc" }}>
-                        {isOutOfStock ? "None left" : `In Stock: ${item.unitsLeft}`}
+                      
+                      {/* Show current tab selection status vs aggregate layout limits */}
+                      <small style={{ color: isOutOfStock ? "#ff4d4d" : "#00f2fe" }}>
+                        {isOutOfStock 
+                          ? "Out of Stock (Claimed)" 
+                          : `Available to add: ${virtualUnitsLeft - currentCustomerQty}`}
                       </small>
+                      {currentCustomerQty > 0 && (
+                        <div style={{ fontSize: "0.75rem", color: "#a3b3cc", marginTop: "2px" }}>
+                          In this cart: {currentCustomerQty}
+                        </div>
+                      )}
                     </div>
                     <button 
                       className={`add-btn ${isOutOfStock ? "disabled-btn" : ""}`} 
                       onClick={() => addToCart(item)}
-                      disabled={isOutOfStock}
+                      disabled={isOutOfStock || currentCustomerQty >= virtualUnitsLeft}
                     >
                       {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                     </button>
@@ -264,7 +296,6 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* SHOPPING CART COMPONENT LAYER (REPRESENTS ACTIVE QUEUE SELECTION ONLY) */}
         <div className="cart-section glass">
           <h3>Shopping Cart</h3>
 
@@ -371,7 +402,23 @@ export default function DashboardPage() {
                         try {
                           const res = await saveSaleToBackend(cart, customerName);
                           alert(res.message);
-                          clearTransaction();
+                          
+                          // After transaction saves successfully, backend numbers drop.
+                          // We can safely purge just this current tab out of our states layout
+                          const remaining = sessions.filter(s => s.id !== currentSessionId);
+                          if (remaining.length === 0) {
+                            setSessions([{ id: Date.now(), customerName: "", cart: [] }]);
+                            setCurrentSessionId(Date.now());
+                          } else {
+                            setSessions(remaining);
+                            setCurrentSessionId(remaining[0].id);
+                          }
+                          setShowReceipt(false);
+                          setShowSaveModal(false);
+                          
+                          // Trigger database inventory sync
+                          const freshData = await getAllProducts();
+                          if (freshData && freshData.products) setProducts(freshData.products);
                         } catch (err) {
                           alert("Error saving transaction: " + err.message);
                         }
