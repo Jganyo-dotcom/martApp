@@ -607,3 +607,67 @@
     opacity: 1;
   }
 }
+
+.session-tabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 15px;
+}
+.tabs-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+}
+.session-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #131926;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #a3b3cc;
+  transition: all 0.2s ease;
+}
+.session-tab.active-tab {
+  background: #00f2fe;
+  color: #060913;
+  font-weight: bold;
+  border-color: #00f2fe;
+}
+.tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+.active-tab .tab-badge {
+  background: rgba(0, 0, 0, 0.15);
+}
+.close-tab-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.create-session-btn {
+  background: #00f2fe;
+  color: #060913;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.create-session-btn:hover {
+  opacity: 0.9;
+}
