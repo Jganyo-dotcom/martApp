@@ -8,17 +8,71 @@ import "../styles/Dashboard.css";
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [customerName, setCustomerName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
-  // ─── NEW STATES FOR PAGINATION & LOADING ───────────────────
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const itemsPerPage = 10;
+  // ─── MULTI-SESSION BASKET CONTROLLER STATES ────────────────
+  // Initialize sessions from localStorage or default to one blank active tab
+  const [sessions, setSessions] = useState(() => {
+    const saved = localStorage.getItem("elitech_pos_sessions");
+    return saved ? JSON.parse(saved) : [{ id: Date.now(), customerName: "", cart: [] }];
+  });
+  
+  const [currentSessionId, setCurrentSessionId] = useState(() => {
+    return sessions[0]?.id || Date.now();
+  });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const pressTimerRef = useRef(null);
+
+  // Sync active queues to localStorage whenever items or names change
+  useEffect(() => {
+    localStorage.setItem("elitech_pos_sessions", JSON.stringify(sessions));
+  }, [sessions]);
+
+  // Extract the active basket state based on the selected session tab
+  const activeSession = useMemo(() => {
+    return sessions.find(s => s.id === currentSessionId) || sessions[0];
+  }, [sessions, currentSessionId]);
+
+  const cart = activeSession?.cart || [];
+  const customerName = activeSession?.customerName || "";
+
+  // Helper function to update properties inside the currently active customer tab
+  const updateActiveSessionData = (updatedFields) => {
+    setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, ...updatedFields } : s));
+  };
+
+  // ─── ADD / SWITCH / TERMINATE BASKET QUEUES ────────────────
+  const createNewSession = () => {
+    const newId = Date.now();
+    const newTabNumber = sessions.length + 1;
+    const newSession = {
+      id: newId,
+      customerName: `Customer Queue #${newTabNumber}`,
+      cart: []
+    };
+    setSessions(prev => [...prev, newSession]);
+    setCurrentSessionId(newId);
+  };
+
+  const closeSession = (idToClose, e) => {
+    e.stopPropagation(); // Avoid triggering tab selection changes
+    if (sessions.length === 1) {
+      // Keep at least one active workbench open
+      setSessions([{ id: Date.now(), customerName: "", cart: [] }]);
+      setCurrentSessionId(Date.now());
+      return;
+    }
+    
+    const remaining = sessions.filter(s => s.id !== idToClose);
+    setSessions(remaining);
+    if (currentSessionId === idToClose) {
+      setCurrentSessionId(remaining[0].id);
+    }
+  };
 
   // Fetch products from DB
   useEffect(() => {
@@ -26,7 +80,6 @@ export default function DashboardPage() {
       setIsLoading(true);
       try {
         const data = await getAllProducts();
-        // FIXED: Extract the raw products array from the backend envelope wrapper response
         if (data && data.products) {
           setProducts(data.products);
         } else {
@@ -41,19 +94,16 @@ export default function DashboardPage() {
     fetchProducts();
   }, []);
 
-  // Reset page to 1 whenever search query updates
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Filter results in real-time
   const filteredResults = useMemo(() => {
     return products.filter((item) =>
       item.productName.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [searchTerm, products]);
 
-  // ─── PAGINATION SPLITTING CRITERIA ────────────────────────
   const totalPages = Math.ceil(filteredResults.length / itemsPerPage) || 1;
 
   const displayedProducts = useMemo(() => {
@@ -61,42 +111,41 @@ export default function DashboardPage() {
     return filteredResults.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredResults, currentPage]);
 
+  // ─── CART ACTIONS RELATED ONLY TO ACTIVE SESSION ───────────
   const addToCart = (item) => {
     const existingItem = cart.find((c) => c.id === item.id);
-    
+    let updatedCart = [];
+
     if (existingItem) {
-      // Safety stock guard validation check
       if (existingItem.qty >= item.unitsLeft) {
-        alert(`Cannot add more. Only ${item.unitsLeft} units are available in total stock.`);
+        alert(`Cannot add more. Only ${item.unitsLeft} units are available.`);
         return;
       }
-      setCart(
-        cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c)),
-      );
+      updatedCart = cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c));
     } else {
-      setCart([...cart, { ...item, qty: 1 }]);
+      updatedCart = [...cart, { ...item, qty: 1 }];
     }
+    updateActiveSessionData({ cart: updatedCart });
   };
 
   const updateQty = (id, qty, unitsLeft) => {
     const targetQty = Math.max(1, qty);
-    // Prevent manual numeric input values bypassing actual remaining quantities
     if (targetQty > unitsLeft) {
       alert(`Stock Limit Exceeded. Only ${unitsLeft} units are left.`);
       return;
     }
-    setCart(
-      cart.map((c) => (c.id === id ? { ...c, qty: targetQty } : c)),
-    );
+    const updatedCart = cart.map((c) => (c.id === id ? { ...c, qty: targetQty } : c));
+    updateActiveSessionData({ cart: updatedCart });
   };
 
   const removeItem = (id) => {
-    setCart(cart.filter((c) => c.id !== id));
+    const updatedCart = cart.filter((c) => c.id !== id);
+    updateActiveSessionData({ cart: updatedCart });
   };
 
   const clearTransaction = () => {
-    setCart([]);
-    setCustomerName("");
+    // Completely clear current tab data down to initial configuration
+    updateActiveSessionData({ cart: [], customerName: "" });
     setShowReceipt(false);
     setShowSaveModal(false);
   };
@@ -105,7 +154,7 @@ export default function DashboardPage() {
   const mart = localStorage.getItem("mart");
   const user = localStorage.getItem("user");
 
-  // CROSS-PLATFORM LONG PRESS HANDLERS
+  // LONG PRESS TIMER LOGIC FOR BACKEND SAVE ACTIONS
   const startPressTimer = () => {
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
     pressTimerRef.current = setTimeout(() => {
@@ -120,15 +169,31 @@ export default function DashboardPage() {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
-    };
-  }, []);
-
   return (
     <div className="dashboard">
       <Navbar brand={mart} user={user} />
+
+      {/* ─── DYNAMIC MULTI-CUSTOMER SERVICE SESSION TABS TRUNK ─── */}
+      <div className="session-tabs-bar glass">
+        <div className="tabs-container">
+          {sessions.map((s, index) => (
+            <div 
+              key={s.id} 
+              className={`session-tab ${s.id === currentSessionId ? "active-tab" : ""}`}
+              onClick={() => setCurrentSessionId(s.id)}
+            >
+              <span className="tab-title">
+                {s.customerName.trim() !== "" ? s.customerName : `Queue #${index + 1}`} 
+                {s.cart.length > 0 && <span className="tab-badge">({s.cart.length})</span>}
+              </span>
+              <button className="close-tab-btn" onClick={(e) => closeSession(s.id, e)}>&times;</button>
+            </div>
+          ))}
+        </div>
+        <button className="create-session-btn" onClick={createNewSession}>
+          ➕ Serve Another Customer
+        </button>
+      </div>
 
       <div className="dashboard-content">
         <div className="search-section">
@@ -142,7 +207,6 @@ export default function DashboardPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              {/* Async/Network Processing Indicator */}
               {isLoading && <span className="search-spinner">Syncing...</span>}
             </div>
           </div>
@@ -150,9 +214,7 @@ export default function DashboardPage() {
           <div className="results-grid">
             {displayedProducts.length > 0 ? (
               displayedProducts.map((item) => {
-                // Determine if item runs out of stock inventory bounds
                 const isOutOfStock = item.unitsLeft <= 0;
-
                 return (
                   <div key={item.id} className={`result-card glass ${isOutOfStock ? "out-of-stock-card" : ""}`}>
                     <div className="item-info">
@@ -162,7 +224,6 @@ export default function DashboardPage() {
                         {isOutOfStock ? "None left" : `In Stock: ${item.unitsLeft}`}
                       </small>
                     </div>
-                    {/* Dynamic Action State Button Mapping */}
                     <button 
                       className={`add-btn ${isOutOfStock ? "disabled-btn" : ""}`} 
                       onClick={() => addToCart(item)}
@@ -175,14 +236,11 @@ export default function DashboardPage() {
               })
             ) : (
               <p className="no-results">
-                {isLoading
-                  ? "Fetching fresh stock details..."
-                  : `No hardware found matching "${searchTerm}"`}
+                {isLoading ? "Fetching fresh stock details..." : `No items found matching "${searchTerm}"`}
               </p>
             )}
           </div>
 
-          {/* ─── MODERN CONTROLLERS FOR PAGINATION ─────────────────── */}
           {filteredResults.length > itemsPerPage && (
             <div className="pagination-controls glass">
               <button
@@ -197,9 +255,7 @@ export default function DashboardPage() {
               </span>
               <button
                 className="pag-btn"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
                 Next →
@@ -208,21 +264,22 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* SHOPPING CART COMPONENT LAYER (REPRESENTS ACTIVE QUEUE SELECTION ONLY) */}
         <div className="cart-section glass">
           <h3>Shopping Cart</h3>
 
           <div className="customer-info-input">
-            <label>Customer Name</label>
+            <label>Customer Name / Identifier</label>
             <input
               type="text"
-              placeholder="Enter buyer's name (Optional)..."
+              placeholder="Name or Queue ID to distinguish tab..."
               value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
+              onChange={(e) => updateActiveSessionData({ customerName: e.target.value })}
             />
           </div>
 
           <div className="cart-list">
-            {cart.length === 0 && <p className="empty-msg">No items in cart</p>}
+            {cart.length === 0 && <p className="empty-msg">No items in this cart</p>}
             {cart.map((item) => (
               <div key={item.id} className="cart-item">
                 <div className="cart-item-details">
@@ -232,21 +289,14 @@ export default function DashboardPage() {
                       type="number"
                       min="1"
                       value={item.qty}
-                      onChange={(e) =>
-                        updateQty(item.id, parseInt(e.target.value) || 1, item.unitsLeft)
-                      }
+                      onChange={(e) => updateQty(item.id, parseInt(e.target.value) || 1, item.unitsLeft)}
                     />
                     <span className="subtotal">
                       GHC{(item.sellingPricePerUnit * item.qty).toFixed(2)}
                     </span>
                   </div>
                 </div>
-                <button
-                  className="remove-btn"
-                  onClick={() => removeItem(item.id)}
-                >
-                  &times;
-                </button>
+                <button className="remove-btn" onClick={() => removeItem(item.id)}>&times;</button>
               </div>
             ))}
           </div>
@@ -257,10 +307,7 @@ export default function DashboardPage() {
               <strong>GHC{total.toFixed(2)}</strong>
             </div>
             {cart.length > 0 && (
-              <button
-                className="purchase-btn"
-                onClick={() => setShowReceipt(true)}
-              >
+              <button className="purchase-btn" onClick={() => setShowReceipt(true)}>
                 Generate Receipt
               </button>
             )}
@@ -272,18 +319,11 @@ export default function DashboardPage() {
       {showReceipt && (
         <div className="modal-overlay">
           <div className="receipt-modal">
-            <h2>*** Elitech Mart ***</h2>
+            <h2>*** {mart || "Elitech Mart"} ***</h2>
             <p className="receipt-date">Date: {new Date().toLocaleString()}</p>
 
             {customerName && (
-              <p
-                className="receipt-customer"
-                style={{
-                  textAlign: "left",
-                  fontSize: "0.9rem",
-                  textTransform: "uppercase",
-                  }}
-              >
+              <p className="receipt-customer" style={{ textAlign: "left", fontSize: "0.9rem", textTransform: "uppercase" }}>
                 <strong>Customer:</strong> {customerName}
               </p>
             )}
@@ -293,9 +333,7 @@ export default function DashboardPage() {
               {cart.map((item) => (
                 <li key={item.id}>
                   {item.productName} x {item.qty}
-                  <span className="price">
-                    GHC{(item.sellingPricePerUnit * item.qty).toFixed(2)}
-                  </span>
+                  <span className="price">GHC{(item.sellingPricePerUnit * item.qty).toFixed(2)}</span>
                 </li>
               ))}
             </ul>
@@ -303,7 +341,6 @@ export default function DashboardPage() {
             <div className="divider">------------------------------------</div>
             <p className="receipt-total">TOTAL: GHC{total.toFixed(2)}</p>
             <div className="divider">------------------------------------</div>
-
             <p className="thanks">THANK YOU FOR CHOOSING ELITECH</p>
 
             <div className="modal-actions">
@@ -318,13 +355,7 @@ export default function DashboardPage() {
               >
                 🖨 Print
               </button>
-
-              <button
-                className="btn close-btn"
-                onClick={() => setShowReceipt(false)}
-              >
-                ✖ Close
-              </button>
+              <button className="btn close-btn" onClick={() => setShowReceipt(false)}>✖ Close</button>
             </div>
 
             {/* Save Transaction Modal */}
@@ -348,12 +379,7 @@ export default function DashboardPage() {
                     >
                       Save
                     </button>
-                    <button
-                      className="btn secondary-btn"
-                      onClick={() => setShowSaveModal(false)}
-                    >
-                      Cancel
-                    </button>
+                    <button className="btn secondary-btn" onClick={() => setShowSaveModal(false)}>Cancel</button>
                   </div>
                 </div>
               </div>
