@@ -42,9 +42,6 @@ export default function Navbar({ brand = "Elitech Mart", user = "unknown" }) {
           <Link to="/inventory" onClick={() => setIsOpen(false)}>
             Inventory
           </Link>
-          <Link to="/stock" onClick={() => setIsOpen(false)}>
-            Stock
-          </Link>
           <Link to="/profit" onClick={() => setIsOpen(false)}>
             Profit
           </Link>
