@@ -19,7 +19,6 @@ export default function Navbar({ brand = "Elitech Mart", user = "unknown" }) {
         <Link to="/inventory">Inventory</Link>
         {/* <Link to="/stock">Stock</Link> */}
         <Link to="/profit">Profit</Link>
-        <Link to="/settings">Settings</Link>
       </nav>
 
       {/* Mobile Hamburger */}
@@ -44,9 +43,6 @@ export default function Navbar({ brand = "Elitech Mart", user = "unknown" }) {
           </Link>
           <Link to="/profit" onClick={() => setIsOpen(false)}>
             Profit
-          </Link>
-          <Link to="/settings" onClick={() => setIsOpen(false)}>
-            Settings
           </Link>
         </div>
       )}
